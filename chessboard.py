@@ -1,28 +1,52 @@
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QWidget, QGridLayout
-from PyQt6.QtGui import QPalette, QColor
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush
+from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from itertools import cycle
 from pieces import Pawn, Rook, Bishop, Knight, King, Queen
 
 
 
 class Square(QtWidgets.QLabel):
-    #https://www.pythonguis.com/tutorials/pyqt6-layouts/
+
+    clicked = pyqtSignal()
+
     def __init__(self, coords, color, piece=None):
         super().__init__()
 
         self.coords = coords
         self.piece = piece
+        self.hightLight = False
+        self.color = color
 
         self.setAutoFillBackground(True)
         palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window,QColor(color))
+        palette.setColor(QPalette.ColorRole.Window,QColor(self.color))
         self.setPalette(palette)
 
         if self.piece != None:
             self.setPixmap(self.piece.image)
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.clicked.connect(self.squareClicked)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+
+    # def squareClicked(self):
+    #     print("Clicked:", self.coords, self.piece)
+    #     canvas = QPixmap(self.width(), self.width())
+    #     canvas.fill(QColor(255,255,0,127))
+    #     self.setPixmap(canvas)
+    #     self.setPalette(canvas)
+    #     self.setPixmap(self.piece.image)
+        
+
+    #     # self.setPixmap(QPixmap("ChessPieces\RookW.png"))
+        
+
+        
+        
 
 
 class ChessBoard(QWidget):
@@ -78,5 +102,6 @@ class ChessBoard(QWidget):
                 else:
                     layout.addWidget(Square((i,j), color), i, j)
 
-        self. setLayout(layout)
+        self.setLayout(layout)
         self.setFixedSize(QSize(800,800))
+        self.setGeometry(100,100,400,400)
