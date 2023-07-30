@@ -11,7 +11,6 @@ class MainWindow(QMainWindow):
         layout.setSpacing(0)
         layout.addWidget(ChessBoard())
 
-
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
