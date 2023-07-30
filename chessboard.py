@@ -1,7 +1,7 @@
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QWidget, QGridLayout
 from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen
-from PyQt6.QtCore import QSize, Qt, pyqtSignal, QPoint
+from PyQt6.QtCore import QSize, Qt, pyqtSignal, QPoint, QPointF
 from itertools import cycle
 from pieces import Pawn, Rook, Bishop, Knight, King, Queen
 
@@ -46,7 +46,7 @@ class Square(QtWidgets.QLabel):
             painter.drawPixmap(point, self.piece.image)
             painter.end()
             self.setPixmap(canvas)
-            self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            # self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def removeHighlight(self):
         if self.piece != None:

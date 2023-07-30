@@ -7,7 +7,8 @@ class Pawn():
         else:
             self.image = QtGui.QPixmap("ChessPieces\PawnB.png")
 
-        self.legalMoves = [(5,5), (4,5)]
+        self.possibleMoves = []
+        self.legalMoves = [(4,5), (5,5)]
         self.player = player
 
 class Rook():
@@ -17,6 +18,7 @@ class Rook():
         else:
             self.image = QtGui.QPixmap("ChessPieces\RookB.png")
 
+        self.possibleMoves = []
         self.legalMoves = []
         self.player = player
 
@@ -27,6 +29,7 @@ class Knight():
         else:
             self.image = QtGui.QPixmap("ChessPieces\KnightB.png")
         
+        self.possibleMoves = []
         self.legalMoves = []
         self.player = player
 
@@ -37,6 +40,7 @@ class Bishop():
         else:
             self.image = QtGui.QPixmap("ChessPieces\BishopB.png")
 
+        self.possibleMoves = [] 
         self.legalMoves = []
         self.player = player
 
@@ -47,6 +51,7 @@ class Queen():
         else:
             self.image = QtGui.QPixmap("ChessPieces\QueenB.png")
 
+        self.possibleMoves = [] 
         self.legalMoves = []
         self.player = player
     
@@ -57,5 +62,6 @@ class King():
         else:
             self.image = QtGui.QPixmap("ChessPieces\KingB.png")
 
+        self.possibleMoves = [] 
         self.legalMoves = []
         self.player = player
