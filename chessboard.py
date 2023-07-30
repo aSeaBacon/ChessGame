@@ -10,13 +10,14 @@ from pieces import Pawn, Rook, Bishop, Knight, King, Queen
 class Square(QtWidgets.QLabel):
 
     clicked = pyqtSignal()
+    isHighlighted = False
+    hasHint = False
 
     def __init__(self, chessBoard, coords, color, piece=None):
         super().__init__()
 
         self.coords = coords
         self.piece = piece
-        self.highLight = False
         self.color = color
         self.chessBoard = chessBoard
 
@@ -34,17 +35,6 @@ class Square(QtWidgets.QLabel):
     def mousePressEvent(self, event):
         self.chessBoard.clickedSquare = self
         self.clicked.emit()
-
-    # def squareClicked(self):
-    #     if self.highLight and self.coords == self.chessBoard.currentSquare:
-    #         self.removeHighLight()
-    #     elif self.highLight == False and self.chessBoard.currentSquare == None:
-    #         self.highLightSquare()
-    #     else:
-    #         pass
-
-    #     if self.piece == None:
-    #         self.addHint()
         
 
     def highlightSquare(self):
@@ -87,10 +77,17 @@ class Square(QtWidgets.QLabel):
     def updateSquare(self):
         if self.piece == None:
             self.clear()
+            if self.hasHint:
+                self.addHint()
+
         else:
-            self.clear()
-            self.setPixmap(self.piece.image)
-            self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            if self.isHighlighted:
+                self.highlightSquare()
+            else:
+                self.clear()
+                self.setPixmap(self.piece.image)
+                self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         
 
         
@@ -173,11 +170,18 @@ class ChessBoard(QWidget):
             if self.highlightedSquare != None and self.clickedSquare.coords in self.highlightedSquare.piece.legalMoves:
                 self.clickedSquare.piece = self.highlightedSquare.piece
                 self.clickedSquare.updateSquare()
+                for coords in self.highlightedSquare.piece.legalMoves:
+                    i = coords[0]
+                    j = coords[1]
+                    self.squares[i][j].hasHint = False
+                    self.squares[i][j].updateSquare()
                 self.highlightedSquare.piece = None
+                self.highlightedSquare.isHighlighted = False
                 self.highlightedSquare.updateSquare()
                 self.highlightedSquare = None
             elif self.highlightedSquare != None:
-                self.highlightedSquare.removeHighlight()
+                self.highlightedSquare.isHighlighted = False
+                self.highlightedSquare.updateSquare()
                 self.highlightedSquare = None
 
         elif self.clickedSquare.piece.player == self.currentPlayer:
@@ -186,17 +190,29 @@ class ChessBoard(QWidget):
             #   Highlighted square is clicked, so remove highlight on that square
             #   No square is highlighted, so highlight clicked square
             if self.clickedSquare == self.highlightedSquare:
-                self.clickedSquare.removeHighlight()
+                self.clickedSquare.isHighlighted = False
+                self.clickedSquare.updateSquare()
                 self.highlightedSquare = None
 
             elif self.highlightedSquare != None:
-                self.highlightedSquare.removeHighlight()
-                self.clickedSquare.highlightSquare()
+                self.highlightedSquare.isHighlighted = False
+                self.highlightedSquare.updateSquare()
+                self.clickedSquare.ishighlighted = True
+                self.clickedSquare.updateSquare()
                 self.highlightedSquare = self.clickedSquare
 
             else:
                 self.highlightedSquare = self.clickedSquare
-                self.clickedSquare.highlightSquare()
+                self.clickedSquare.isHighlighted = True
+                self.clickedSquare.updateSquare()
+                for coords in self.highlightedSquare.piece.legalMoves:
+                    i = coords[0]
+                    j = coords[1]
+                    if self.squares[i][j].piece == None:
+                        self.squares[i][j].hasHint = True
+                        self.squares[i][j].updateSquare()
+
+                    
         else:
             pass
 
