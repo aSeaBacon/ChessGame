@@ -1,67 +1,116 @@
 from PyQt6 import QtGui
 
-class Pawn():
-    def __init__(self, player):
-        if player=="White":
+class Piece():
+
+    legalMoves = []
+    isPinned = False
+    pinningPieceLoc = ()
+    image = None
+    pieceName = None
+
+    def __init__(self,player,chessBoard, coords):
+        self.player = player
+        self.coords = coords
+        self.chessBoard = chessBoard
+        self.getImage()
+
+    def getLegalMoves(self):
+        pass
+
+class Pawn(Piece):
+
+    # legalMoves = [(4,5), (5,5)]
+    hasMoved = False
+    pieceName = "Pawn"
+
+    def getImage(self):
+        if self.player=="White":
             self.image = QtGui.QPixmap("ChessPieces\PawnW.png")
         else:
             self.image = QtGui.QPixmap("ChessPieces\PawnB.png")
 
-        self.possibleMoves = []
-        self.legalMoves = [(4,5), (5,5)]
-        self.player = player
+    def getLegalMoves(self):
 
-class Rook():
-    def __init__(self, player):
-        if player=="White":
+        self.legalMoves = []
+        i = self.coords[0]
+        j = self.coords[1]
+
+        #Pawn Moves:
+        #    4#
+        # 3# 2# 1#
+        if self.player=="White":
+            #1
+            if (j+1) < 8 and self.chessBoard.squares[i-1][j+1].piece != None and self.chessBoard.squares[i-1][j+1].piece.player != self.player:
+                self.legalMoves.append((i-1, j+1))
+            #2
+            if self.chessBoard.squares[i-1][j].piece == None:
+                self.legalMoves.append((i-1, j))
+            #3
+            if (j-1) >= 0 and self.chessBoard.squares[i-1][j-1].piece != None and self.chessBoard.squares[i-1][j-1].piece.player != self.player:
+                self.legalMoves.append((i-1, j-1))
+            #4
+            if not self.hasMoved and self.chessBoard.squares[i-2][j].piece == None and self.chessBoard.squares[i-1][j].piece == None:
+                self.legalMoves.append((i-2, j))
+
+        elif self.player=="Black":
+            #1
+            if (j+1) < 8 and self.chessBoard.squares[i+1][j+1].piece != None and self.chessBoard.squares[i+1][j+1].piece.player != self.player:
+                self.legalMoves.append((i+1, j+1))
+            #2
+            if self.chessBoard.squares[i+1][j].piece == None:
+                self.legalMoves.append((i+1, j))
+            #3
+            if (j-1) >= 0 and self.chessBoard.squares[i+1][j-1].piece != None and self.chessBoard.squares[i+1][j-1].piece.player != self.player:
+                self.legalMoves.append((i+1, j-1))
+            #4
+            if not self.hasMoved and self.chessBoard.squares[i+2][j].piece == None and self.chessBoard.squares[i+1][j].piece == None:
+                self.legalMoves.append((i+2, j))
+                    
+
+
+        
+
+class Rook(Piece):
+    
+    hasMoved = False
+    
+    def getImage(self):
+        if self.player=="White":
             self.image = QtGui.QPixmap("ChessPieces\RookW.png")
         else:
             self.image = QtGui.QPixmap("ChessPieces\RookB.png")
 
-        self.possibleMoves = []
-        self.legalMoves = []
-        self.player = player
+class Bishop(Piece):
 
-class Knight():
-    def __init__(self, player):
-        if player=="White":
-            self.image = QtGui.QPixmap("ChessPieces\KnightW.png")
-        else:
-            self.image = QtGui.QPixmap("ChessPieces\KnightB.png")
-        
-        self.possibleMoves = []
-        self.legalMoves = []
-        self.player = player
-
-class Bishop():
-    def __init__(self, player):
-        if player=="White":
+    def getImage(self):
+        if self.player=="White":
             self.image = QtGui.QPixmap("ChessPieces\BishopW.png")
         else:
             self.image = QtGui.QPixmap("ChessPieces\BishopB.png")
 
-        self.possibleMoves = [] 
-        self.legalMoves = []
-        self.player = player
+class Knight(Piece):
 
-class Queen():
-    def __init__(self, player):
-        if player=="White":
-            self.image = QtGui.QPixmap("ChessPieces\QueenW.png")
+    def getImage(self):
+        if self.player=="White":
+            self.image = QtGui.QPixmap("ChessPieces\KnightW.png")
         else:
-            self.image = QtGui.QPixmap("ChessPieces\QueenB.png")
+            self.image = QtGui.QPixmap("ChessPieces\KnightB.png")
 
-        self.possibleMoves = [] 
-        self.legalMoves = []
-        self.player = player
-    
-class King():
-    def __init__(self, player):
-        if player=="White":
+class King(Piece):
+
+    hasMoved = False
+
+    def getImage(self):
+        if self.player=="White":
             self.image = QtGui.QPixmap("ChessPieces\KingW.png")
         else:
             self.image = QtGui.QPixmap("ChessPieces\KingB.png")
 
-        self.possibleMoves = [] 
-        self.legalMoves = []
-        self.player = player
+class Queen(Piece):
+
+    def getImage(self):
+        if self.player=="White":
+            self.image = QtGui.QPixmap("ChessPieces\QueenW.png")
+        else:
+            self.image = QtGui.QPixmap("ChessPieces\QueenB.png")
+
