@@ -13,6 +13,8 @@ class ChessBoard(QWidget):
     clickedSquare = None
     currentPlayer = "White"
     isKingChecked = False
+    checkingPieces = []
+    checkedKing = None
 
     def __init__(self):
         super().__init__()
@@ -78,7 +80,7 @@ class ChessBoard(QWidget):
             self.squares.append(tmpList)
 
     def squareClicked(self):
-        print(self.clickedSquare.coords)
+        print(self.clickedSquare.piece,":",self.clickedSquare.coords)
         #Either white occupied, black occupied or empty square is clicked
 
         #Player clicks empty square
@@ -96,8 +98,9 @@ class ChessBoard(QWidget):
         #Player clicks one of their peices
         elif self.clickedSquare.piece.player == self.currentPlayer:
             #Recalculate legal moves
+            self.clickedSquare.piece.getPossibleMoves()
             self.clickedSquare.piece.getLegalMoves()
-            print(self.clickedSquare.piece.legalMoves)
+            print(self.clickedSquare.piece.pieceName, ":",self.clickedSquare.piece.legalMoves)
             #Clicked square is currently highlighted
             if self.clickedSquare == self.highlightedSquare:
                 self.clickedSquare.isHighlighted = False
