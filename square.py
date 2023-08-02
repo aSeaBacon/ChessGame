@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen
-from PyQt6.QtCore import QSize, Qt, pyqtSignal, QPoint
+from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 
 
 
@@ -54,15 +54,31 @@ class Square(QLabel):
         self.clear()
         canvas = QPixmap(self.size())
         canvas.fill(QColor(0,0,0,0))
-        r = self.width()//6
-        painter = QPainter(canvas)
         center = QPoint(self.height()//2, self.width()//2)
-        brush = QBrush(Qt.BrushStyle.SolidPattern)
-        brush.setColor(QColor(0,0,0,25))
-        painter.setPen(QPen(Qt.PenStyle.NoPen))
-        painter.setBrush(brush)
-        painter.drawEllipse(center, r, r)
+
+        if self.piece == None:
+            r = self.width()//6
+            painter = QPainter(canvas)
+            center = QPoint(self.height()//2, self.width()//2)
+            brush = QBrush(Qt.BrushStyle.SolidPattern)
+            brush.setColor(QColor(0,0,0,25))
+            painter.setPen(QPen(Qt.PenStyle.NoPen))
+            painter.setBrush(brush)
+            painter.drawEllipse(center, r, r)
+
+        else:
+            r = self.width()//2 - 3
+            point = QPoint((self.width() - self.piece.image.width())//2, (self.height() - self.piece.image.height())//2)
+            painter = QPainter(canvas)
+            painter.drawPixmap(point, self.piece.image)
+            pen = QPen(Qt.PenStyle.SolidLine)
+            pen.setWidth(self.width()//10 - 1)
+            pen.setColor(QColor(0,0,0,25))
+            painter.setPen(pen)
+            painter.drawEllipse(center, r, r)
+
         self.setPixmap(canvas)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         painter.end()
 
     def removeHint(self):
@@ -70,17 +86,25 @@ class Square(QLabel):
 
     def updateSquare(self):
         if self.piece != None:
-            if self.isHighlighted:
-                self.addHighlight()
+            if self.piece.player == self.chessBoard.currentPlayer:
+                if self.isHighlighted:
+                    self.addHighlight()
+                else:
+                    self.clear()
+                    self.setPixmap(self.piece.image)
+                    self.setAlignment(Qt.AlignmentFlag.AlignCenter)
             else:
-                self.clear()
-                self.setPixmap(self.piece.image)
-                self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                if self.hasHint:
+                    self.addHint()
+                else:
+                    self.clear()
+                    self.setPixmap(self.piece.image)
+                    self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         else:
             if self.hasHint:
                 self.addHint()
             else:
-                self.clear()
+                self.removeHint()
     
 

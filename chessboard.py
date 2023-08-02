@@ -141,7 +141,7 @@ class ChessBoard(QWidget):
 
     def movePiece(self):
 
-        if self.highlightedSquare.piece.pieceName == "Pawn":
+        if self.highlightedSquare.piece.pieceName in ["Pawn", "King", "Rook"]:
             self.highlightedSquare.piece.hasMoved = True
         self.clickedSquare.piece = self.highlightedSquare.piece
         self.clickedSquare.piece.coords = self.clickedSquare.coords
@@ -158,14 +158,56 @@ class ChessBoard(QWidget):
             self.currentPlayer = "White"
 
     def selectNewSquare(self):
-        #Highlights new clicked square, and removes highlight from old square
+
+        #Highlight clicked square
         self.clickedSquare.isHighlighted = True
         self.clickedSquare.updateSquare()
-        self.setHints(self.clickedSquare, True)
+
+        #Remove highlight from previously highlighted square
         self.highlightedSquare.isHighlighted = False
         self.highlightedSquare.updateSquare()
+
+        #Remove hints from previously highlighted square
         self.setHints(self.highlightedSquare, False)
+
+        #Add hints for clicked square
+        self.setHints(self.clickedSquare, True)
+
+        #Set clicked square as highlighted square
         self.highlightedSquare = self.clickedSquare
+
+    def createLine(self, loc1, loc2, incLoc1=False, incLoc2=False):
+
+        #Generates points from starting position to ending position in order
+        #i.e a:(1,0) b:(4,0)
+        #    a->b = [(2,0), (3,0)]
+        #    b->a = [(3,0), (2,0)]
+
+        points = []
+        if loc1[0] == loc2[0]:
+            if loc2[1] > loc1[1]:
+                for i in range(1, loc2[1] - loc1[1]):
+                    points.append((loc1[0], loc1[1] + i))
+            else:
+                for i in range(1, loc1[1] - loc2[1]):
+                    points.append((loc1[0], loc1[1] - i))
+
+        else:
+            m = (loc2[1] - loc1[1]) // (loc2[0] - loc1[0])
+            if loc2[0] > loc1[0]:
+                for x in range(1, loc2[0] - loc1[0]):
+                    points.append((loc1[0] + x, loc1[1] + x*m))
+            else:
+                for x in range(1, loc1[0] - loc2[0]):
+                    points.append((loc1[0] - x, loc1[1] - x*m))
+
+        if incLoc1 and loc1!=loc2:
+            points.append(loc1)
+
+        if incLoc2 and loc1!=loc2:
+            points.append(loc2)
+
+        return points
 
     
 

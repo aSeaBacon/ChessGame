@@ -20,40 +20,6 @@ class Piece():
 
     def getLegalMoves(self):
         pass
-
-    def createLine(self, loc1, loc2, incLoc1=False, incLoc2=False):
-
-        #Generates points from starting position to ending position in order
-        #i.e a:(1,0) b:(4,0)
-        #    a->b = [(2,0), (3,0)]
-        #    b->a = [(3,0), (2,0)]
-
-        #(x1,y1), (x2, y2)
-        points = []
-        if loc1[0] == loc2[0]:
-            if loc2[1] > loc1[1]:
-                for i in range(1, loc2[1] - loc1[1]):
-                    points.append((loc1[0], loc1[1] + i))
-            else:
-                for i in range(1, loc1[1] - loc2[1]):
-                    points.append((loc1[0], loc1[1] - i))
-
-        else:
-            m = (loc2[1] - loc1[1]) // (loc2[0] - loc1[0])
-            if loc2[0] > loc1[0]:
-                for x in range(1, loc2[0] - loc1[0]):
-                    points.append((loc1[0] + x, loc1[1] + x*m))
-            else:
-                for x in range(1, loc1[0] - loc2[0]):
-                    points.append((loc1[0] - x, loc1[1] - x*m))
-
-        if incLoc1 and loc1!=loc2:
-            points.append(loc1)
-
-        if incLoc2 and loc1!=loc2:
-            points.append(loc2)
-
-        return points
             
 class Pawn(Piece):
 
@@ -70,64 +36,58 @@ class Pawn(Piece):
     def getPossibleMoves(self):
 
         self.possibleMoves = []
-        i = self.coords[0]
-        j = self.coords[1]
+        row = self.coords[0]
+        col = self.coords[1]
 
-        #Pawn Moves:
-        #    4#
-        # 3# 2# 1#
-        #   pawn
         if self.player=="White":
-            #1
-            if (j+1) < 8 and self.chessBoard.squares[i-1][j+1].piece != None and self.chessBoard.squares[i-1][j+1].piece.player != self.player:
-                self.possibleMoves.append((i-1, j+1))
-            #2
-            if self.chessBoard.squares[i-1][j].piece == None:
-                self.possibleMoves.append((i-1, j))
-            #3
-            if (j-1) >= 0 and self.chessBoard.squares[i-1][j-1].piece != None and self.chessBoard.squares[i-1][j-1].piece.player != self.player:
-                self.possibleMoves.append((i-1, j-1))
-            #4
-            if not self.hasMoved and self.chessBoard.squares[i-2][j].piece == None and self.chessBoard.squares[i-1][j].piece == None:
-                self.possibleMoves.append((i-2, j))
+            #Forward moves
+            if self.chessBoard.squares[row - 1][col].piece == None:
+                self.possibleMoves.append((row-1, col))
+            if not self.hasMoved and self.chessBoard.squares[row - 1][col].piece == None and self.chessBoard.squares[row - 2][col].piece == None:
+                self.possibleMoves.append((row-2, col))
+            #Left capture
+            if col - 1 >= 0  and self.chessBoard.squares[row - 1][col-1].piece != None and self.chessBoard.squares[row - 1][col-1].piece.player != self.player:
+                self.possibleMoves.append((row - 1, col - 1))
+            #Right capture
+            if col + 1 <= 7  and self.chessBoard.squares[row - 1][col+1].piece != None and self.chessBoard.squares[row - 1][col+1].piece.player != self.player:
+                self.possibleMoves.append((row - 1, col + 1))
 
         elif self.player=="Black":
-            #1
-            if (j+1) < 8 and self.chessBoard.squares[i+1][j+1].piece != None and self.chessBoard.squares[i+1][j+1].piece.player != self.player:
-                self.possibleMoves.append((i+1, j+1))
-            #2
-            if self.chessBoard.squares[i+1][j].piece == None:
-                self.possibleMoves.append((i+1, j))
-            #3
-            if (j-1) >= 0 and self.chessBoard.squares[i+1][j-1].piece != None and self.chessBoard.squares[i+1][j-1].piece.player != self.player:
-                self.possibleMoves.append((i+1, j-1))
-            #4
-            if not self.hasMoved and self.chessBoard.squares[i+2][j].piece == None and self.chessBoard.squares[i+1][j].piece == None:
-                self.possibleMoves.append((i+2, j))
+            #Forward moves
+            if self.chessBoard.squares[row + 1][col].piece == None:
+                self.possibleMoves.append((row + 1, col))
+            if not self.hasMoved and self.chessBoard.squares[row + 1][col].piece == None and self.chessBoard.squares[row + 2][col].piece == None:
+                self.possibleMoves.append((row + 2, col))
+            #Left (from white's perspective) capture
+            if col - 1 >= 0  and self.chessBoard.squares[row + 1][col-1].piece != None and self.chessBoard.squares[row + 1][col-1].piece.player != self.player:
+                self.possibleMoves.append((row + 1, col - 1))
+            #Right (from white's perspective) capture
+            if col + 1 <= 7  and self.chessBoard.squares[row + 1][col+1].piece != None and self.chessBoard.squares[row + 1][col+1].piece.player != self.player:
+                self.possibleMoves.append((row + 1, col + 1))
 
     def getLegalMoves(self):
 
         self.legalMoves = []
         tempMoves = self.possibleMoves[:]
 
-        if self.chessBoard.isKingChecked:
-            for piece in self.chessBoard.checkingPieces:
-                if piece.pieceName == "Knight":
-                    for move in tempMoves:
-                        if move != piece.coords:
-                            tempMoves.remove(move)
-                else:
-                    blockingSquares = self.createLine(self.chessBoard.checkedKing.coords, piece.coords, incLoc2=True)
-                    for move in tempMoves:
-                        if move not in blockingSquares:
-                            tempMoves.remove(move)
+        # if self.chessBoard.isKingChecked:
+        #     for piece in self.chessBoard.checkingPieces:
+        #         if piece.pieceName == "Knight":
+        #             for move in tempMoves:
+        #                 if move != piece.coords:
+        #                     tempMoves.remove(move)
+        #         else:
+        #             blockingSquares = self.chessBoard.createLine(self.chessBoard.checkedKing.coords, piece.coords, incLoc2=True)
+        #             for move in tempMoves:
+        #                 if move not in blockingSquares:
+        #                     tempMoves.remove(move)
         
-        if self.isPinned:
-            for piece in self.pinningPieces:
-                blockingSquares = self.createLine(self.coords, piece.coords, inclLoc2 = True)
-                for move in tempMoves:
-                    if move not in blockingSquares:
-                        tempMoves.remove(move)
+        # if self.isPinned:
+        #     for piece in self.pinningPieces:
+        #         blockingSquares = self.chessBoard.createLine(self.coords, piece.coords, inclLoc2 = True)
+        #         for move in tempMoves:
+        #             if move not in blockingSquares:
+        #                 tempMoves.remove(move)
         
         self.legalMoves = tempMoves[:]
 
@@ -145,51 +105,44 @@ class Rook(Piece):
     def getPossibleMoves(self):
         self.possibleMoves = []
 
-        #Upward Moves:
-        for move in self.createLine(self.coords, (0, self.coords[1]), incLoc2=True):
-            if self.chessBoard.squares[move[0]][move[1]].piece == None:
-                self.possibleMoves.append(move)
-            elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
-                self.possibleMoves.append(move)
-                break
-            else:
-                break
+        #possibleMoves[0] -> North
+        #possibleMoves[1] -> East
+        #possibleMoves[2] -> South
+        #possibleMoves[3] -> West
+
+        row = self.coords[0]
+        col = self.coords[1]
+
+        #North:
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0, col), incLoc2=True))
         
-        #Right Moves:
-        for move in self.createLine(self.coords, (self.coords[0], 7), incLoc2=True):
-            if self.chessBoard.squares[move[0]][move[1]].piece == None:
-                self.possibleMoves.append(move)
-            elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
-                self.possibleMoves.append(move)
-                break
-            else:
-                break
+        #East:
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row, 7), incLoc2=True))
 
-        #Downward Moves:
-        for move in self.createLine(self.coords, (7, self.coords[1]), incLoc2=True):
-            if self.chessBoard.squares[move[0]][move[1]].piece == None:
-                self.possibleMoves.append(move)
-            elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
-                self.possibleMoves.append(move)
-                break
-            else:
-                break
+        #South:
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7, col), incLoc2=True))
 
-        #Left Moves
-        for move in self.createLine(self.coords, (self.coords[0], 0), incLoc2=True):
-            if self.chessBoard.squares[move[0]][move[1]].piece == None:
-                self.possibleMoves.append(move)
-            elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
-                self.possibleMoves.append(move)
-                break
-            else:
-                break
+        #West
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row, 0), incLoc2=True))
 
     def getLegalMoves(self):
-        self.legalMoves = self.possibleMoves[:]
 
+        self.legalMoves = []
         
-
+        #Find piece collisions
+        for directionalMoves in self.possibleMoves:
+            temp = []
+            for move in directionalMoves:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                    temp.append(move)
+                elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
+                    temp.append(move)
+                    break
+                else:
+                    break
+            self.legalMoves = self.legalMoves + temp
+        
+            
 
 class Bishop(Piece):
 
@@ -201,6 +154,65 @@ class Bishop(Piece):
         else:
             self.image = QtGui.QPixmap("ChessPieces\BishopB.png")
 
+    def getPossibleMoves(self):
+        self.possibleMoves = []
+
+        #possibleMoves[0] -> NE
+        #possibleMoves[1] -> SE
+        #possibleMoves[2] -> SW
+        #possibleMoves[3] -> NW
+
+        row = self.coords[0]
+        col = self.coords[1]
+
+        #NE direction
+        if row + col < 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0, row+col), incLoc2=True))
+        elif row + col > 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row+col-7,7), incLoc2=True))
+        elif row + col == 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0,7), incLoc2=True))
+            
+        #SE direction
+        if row == col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7,7), incLoc2=True))
+        elif row > col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7, col + 7-row), incLoc2=True))
+        elif row < col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row + 7-col,7), incLoc2=True))
+
+        #SW direction
+        if row + col < 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row+col,0), incLoc2=True))
+        elif row + col > 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7,col+row-7), incLoc2=True))
+        elif row + col == 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7,0), incLoc2=True))
+
+        # #NW direction
+        if row == col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0,0), incLoc2=True))
+        elif row > col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row-col,0), incLoc2=True))
+        elif row < col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0,col-row), incLoc2=True))
+
+    def getLegalMoves(self):
+        self.legalMoves = []
+
+        #Find piece collisions
+        for directionalMoves in self.possibleMoves:
+            temp = []
+            for move in directionalMoves:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                    temp.append(move)
+                elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
+                    temp.append(move)
+                    break
+                else:
+                    break
+            self.legalMoves = self.legalMoves + temp
+
 class Knight(Piece):
 
     pieceName = "Knight"
@@ -211,6 +223,48 @@ class Knight(Piece):
         else:
             self.image = QtGui.QPixmap("ChessPieces\KnightB.png")
 
+    def getPossibleMoves(self):
+        self.possibleMoves = []
+        row = self.coords[0]
+        col = self.coords[1]
+
+
+        #2N -> 1W/1E
+        if row - 2 >= 0:
+            if col - 1 >= 0:
+                self.possibleMoves.append((row - 2, col - 1))
+            if col + 1 <= 7:
+                self.possibleMoves.append((row - 2, col + 1))
+
+        #2E -> 1N/1S
+        if col + 2 <= 7:
+            if row - 1 >=0:
+                self.possibleMoves.append((row - 1, col + 2))
+            if row + 1 <= 7:
+                self.possibleMoves.append((row + 1, col + 2))
+
+        #2S -> 1E/1W
+        if row + 2 <= 7:
+            if col + 1 <= 7:
+                self.possibleMoves.append((row + 2, col + 1))
+            if col - 1 >= 0:
+                self.possibleMoves.append((row + 2, col - 1))
+            
+        #2W -> 1S/1N
+        if col - 2 >= 0:
+            if row + 1 <= 7:
+                self.possibleMoves.append((row + 1, col - 2))
+            if row - 1 >= 0:
+                self.possibleMoves.append((row - 1, col - 2))
+
+        #Remove any squares containing friendly piece
+        for move in self.possibleMoves[:]:
+            if self.chessBoard.squares[move[0]][move[1]].piece != None and self.chessBoard.squares[move[0]][move[1]].piece.player == self.player:
+                self.possibleMoves.remove(move)
+
+    def getLegalMoves(self):
+        self.legalMoves = self.possibleMoves[:]
+        
 class King(Piece):
 
     hasMoved = False
@@ -222,6 +276,24 @@ class King(Piece):
         else:
             self.image = QtGui.QPixmap("ChessPieces\KingB.png")
 
+    def getPossibleMoves(self):
+        self.possibleMoves = []
+
+        row = self.coords[0]
+        col = self.coords[1]
+
+        #Generates move by 1 square in every direction (order is NW -> N -> NE -> W -> E -> SW -> S -> SE)
+        self.possibleMoves = [(row + x,col + y) for x in range(-1,2) if (row + x) >=0 and (row + x) <=7 for y in range(-1, 2) if (col+y) >= 0 and (col+y) <= 7]
+        self.possibleMoves.remove((row,col))
+
+
+        for move in self.possibleMoves[:]:
+            if self.chessBoard.squares[move[0]][move[1]].piece != None and self.chessBoard.squares[move[0]][move[1]].piece.player == self.player:
+                self.possibleMoves.remove(move)
+        
+    def getLegalMoves(self):
+        self.legalMoves = self.possibleMoves[:]
+
 class Queen(Piece):
 
     pieceName = "Queen"
@@ -231,4 +303,82 @@ class Queen(Piece):
             self.image = QtGui.QPixmap("ChessPieces\QueenW.png")
         else:
             self.image = QtGui.QPixmap("ChessPieces\QueenB.png")
+
+    def getPossibleMoves(self):
+        self.possibleMoves = []
+
+        row = self.coords[0]
+        col = self.coords[1]
+
+        #possibleMoves[0] -> N
+        #possibleMoves[1] -> NE
+        #possibleMoves[2] -> E
+        #possibleMoves[3] -> SE
+        #possibleMoves[4] -> S
+        #possibleMoves[5] -> SW
+        #possibleMoves[6] -> W
+        #possibleMoves[7] -> NW
+
+
+        #North:
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0, col), incLoc2=True))
+
+        #NE direction
+        if row + col < 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0, row+col), incLoc2=True))
+        elif row + col > 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row+col-7,7), incLoc2=True))
+        elif row + col == 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0,7), incLoc2=True))
+
+        #East:
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row, 7), incLoc2=True))
+            
+        #SE direction
+        if row == col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7,7), incLoc2=True))
+        elif row > col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7, col + 7-row), incLoc2=True))
+        elif row < col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row + 7-col,7), incLoc2=True))
+
+        #South:
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7, col), incLoc2=True))
+
+        #SW direction
+        if row + col < 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row+col,0), incLoc2=True))
+        elif row + col > 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7,col+row-7), incLoc2=True))
+        elif row + col == 7:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (7,0), incLoc2=True))
+
+        #West
+        self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row, 0), incLoc2=True))
+
+        # #NW direction
+        if row == col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0,0), incLoc2=True))
+        elif row > col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row-col,0), incLoc2=True))
+        elif row < col:
+            self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0,col-row), incLoc2=True))
+
+
+    def getLegalMoves(self):
+
+        self.legalMoves = []
+
+        #Find piece collisions
+        for directionalMoves in self.possibleMoves:
+            temp = []
+            for move in directionalMoves:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                    temp.append(move)
+                elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
+                    temp.append(move)
+                    break
+                else:
+                    break
+            self.legalMoves = self.legalMoves + temp
 
