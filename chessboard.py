@@ -144,7 +144,6 @@ class ChessBoard(QWidget):
                     self.setHints(self.highlightedSquare, False)
                     self.highlightedSquare = None
             
-
     def setHints(self, square, flag):
         for coords in square.piece.legalMoves:
             i, j = coords[0], coords[1]
@@ -341,7 +340,6 @@ class ChessBoard(QWidget):
                 else:
                     print("STALEMATE")
                     print("Game is a tie")
-
 
     def selectNewSquare(self):
 

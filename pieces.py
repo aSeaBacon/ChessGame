@@ -175,8 +175,6 @@ class Pawn(Piece):
         #Check for moves that block checking pieces
         self.movesThatBlockCheck()
 
-    
-
     def getSquaresAttacked(self):
         self.attackedSquares = []
         row = self.coords[0]
@@ -265,8 +263,6 @@ class Rook(Piece):
                 else:
                     break
             self.attackedSquares = self.attackedSquares + temp
-
-            
 
 class Bishop(Piece):
 
@@ -413,8 +409,7 @@ class Knight(Piece):
 
         #check for moves that block checking pieces
         self.movesThatBlockCheck()
-
-        
+      
 class King(Piece):
 
     hasMoved = False
@@ -565,9 +560,6 @@ class King(Piece):
                 else:
                     self.canCastleQS = False
 
-
-
-
 class Queen(Piece):
 
     pieceName = "Queen"
@@ -636,7 +628,6 @@ class Queen(Piece):
             self.possibleMoves.append(self.chessBoard.createLine(self.coords, (row-col,0), incLoc2=True))
         elif row < col:
             self.possibleMoves.append(self.chessBoard.createLine(self.coords, (0,col-row), incLoc2=True))
-
 
     def getLegalMoves(self):
 

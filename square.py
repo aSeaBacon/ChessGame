@@ -2,8 +2,6 @@ from PyQt6.QtWidgets import QLabel
 from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen
 from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 
-
-
 class Square(QLabel):
 
     clicked = pyqtSignal()
