@@ -12,9 +12,9 @@ class ChessBoard(QWidget):
     highlightedSquare = None
     clickedSquare = None
     currentPlayer = "White"
-    isKingChecked = False
-    checkingPieces = []
-    checkedKing = None
+    #kings[0] -> White king
+    #kings[1] -> black king
+    kings = []
 
     def __init__(self):
         super().__init__()
@@ -48,7 +48,8 @@ class ChessBoard(QWidget):
                             case 3:
                                 self.layout.addWidget(Square(self, (i,j), color, Queen(player, self, (i,j))), i, j)
                             case 4:
-                                self.layout.addWidget(Square(self, (i,j), color, King(player, self, (i,j))), i, j)
+                                self.kings.append(King(player, self, (i,j)))
+                                self.layout.addWidget(Square(self, (i,j), color, self.kings[0]), i, j)
 
                 elif i == 6 or i == 7:
                     player = "White"
@@ -65,7 +66,8 @@ class ChessBoard(QWidget):
                             case 3:
                                 self.layout.addWidget(Square(self, (i,j), color, Queen(player, self, (i,j))), i, j)
                             case 4:
-                                self.layout.addWidget(Square(self, (i,j), color, King(player, self, (i,j))), i, j)
+                                self.kings.append(King(player, self, (i,j)))
+                                self.layout.addWidget(Square(self, (i,j), color, self.kings[1] ), i, j)
                 else:
                     self.layout.addWidget(Square(self, (i,j), color), i, j)
 
@@ -152,10 +154,18 @@ class ChessBoard(QWidget):
         self.highlightedSquare.updateSquare()
         self.highlightedSquare = None
 
-        if self.currentPlayer == "White":
-            self.currentPlayer = "Black"
+        self.findChecks()
+        self.findPins()
+
+        if self.isCheckmated():
+            pass
+        elif self.isStalemated():
+            pass
         else:
-            self.currentPlayer = "White"
+            if self.currentPlayer == "White":
+                self.currentPlayer = "Black"
+            else:
+                self.currentPlayer = "White"
 
     def selectNewSquare(self):
 
@@ -175,6 +185,18 @@ class ChessBoard(QWidget):
 
         #Set clicked square as highlighted square
         self.highlightedSquare = self.clickedSquare
+
+    def isCheckmated(self):
+        pass
+
+    def isStalemated(self):
+        pass
+
+    def findPins(self):
+        pass
+
+    def findChecks(self):
+        pass
 
     def createLine(self, loc1, loc2, incLoc1=False, incLoc2=False):
 

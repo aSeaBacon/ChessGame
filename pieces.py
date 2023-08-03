@@ -268,7 +268,10 @@ class Knight(Piece):
 class King(Piece):
 
     hasMoved = False
+    isKingChecked = False
+    canCastle = False
     pieceName = "King"
+    checkingPieces = []
 
     def getImage(self):
         if self.player=="White":
@@ -286,10 +289,12 @@ class King(Piece):
         self.possibleMoves = [(row + x,col + y) for x in range(-1,2) if (row + x) >=0 and (row + x) <=7 for y in range(-1, 2) if (col+y) >= 0 and (col+y) <= 7]
         self.possibleMoves.remove((row,col))
 
-
+        #Remove any squares occupied by friendly pieces
         for move in self.possibleMoves[:]:
             if self.chessBoard.squares[move[0]][move[1]].piece != None and self.chessBoard.squares[move[0]][move[1]].piece.player == self.player:
                 self.possibleMoves.remove(move)
+
+        #To do: Check if able to castle
         
     def getLegalMoves(self):
         self.legalMoves = self.possibleMoves[:]
