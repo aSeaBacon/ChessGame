@@ -238,12 +238,20 @@ class ChessBoard(QWidget):
                     self.squares[7][7].piece = None
                     self.squares[7][7].updateSquare()
 
+            if self.hasGhostPawn and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.player != self.currentPlayer:
+                self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece = None
+                self.hasGhostPawn = False
+                self.ghostPawnLoc = None
+
 
         else:
 
             if self.highlightedSquare.piece.pieceName in ["Pawn", "King", "Rook"]:
                 #check for enabling en pessant
                 if self.highlightedSquare.piece.pieceName == "Pawn" and self.highlightedSquare.piece.hasMoved == False and self.clickedSquare.piece == None:
+                    if self.hasGhostPawn:
+                        if self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.pieceName == "ghostPawn":
+                            self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece = None
                     if abs(self.highlightedSquare.coords[0] - self.clickedSquare.coords[0]) == 2:
                         self.hasGhostPawn = True
                         if self.currentPlayer == "White":
@@ -280,59 +288,59 @@ class ChessBoard(QWidget):
             self.highlightedSquare = None
 
 
-            if self.currentPlayer == "White":
-                for row in self.squares:
-                    for square in row:
-                        if square.piece != None and square.piece.player =="White":
-                            square.piece.getPossibleMoves()
-                            square.piece.getSquaresAttacked()
-
-                self.kings[1].getPossibleMoves()
-                self.kings[1].getLegalMoves()
-                self.kings[1].getChecks()
-                self.currentPlayer = "Black"
-            else:
-                for row in self.squares:
-                    for square in row:
-                        if square.piece != None and square.piece.player =="Black":
-                            square.piece.getPossibleMoves()
-                            square.piece.getSquaresAttacked()
-                self.kings[0].getPossibleMoves()
-                self.kings[0].getLegalMoves()
-                self.kings[0].getChecks()
-                self.currentPlayer = "White"
-
-
-            isCheckmate = True
-            isStalemate = True
+        if self.currentPlayer == "White":
             for row in self.squares:
                 for square in row:
-                    if square.piece != None and square.piece.player == self.currentPlayer and square.piece.pieceName != "King":
+                    if square.piece != None and square.piece.player =="White":
                         square.piece.getPossibleMoves()
-                        square.piece.getLegalMoves()
-                        if len(square.piece.legalMoves) > 0:
-                            isCheckmate = False
-                            isStalemate = False
-            
-            if (isCheckmate or isStalemate) and self.currentPlayer == "White" and len(self.kings[0].legalMoves) > 0:
-                isCheckmate = False
-                isStalemate = False
+                        square.piece.getSquaresAttacked()
 
-            if (isCheckmate or isStalemate):
-                if self.currentPlayer == "White":
-                    if self.kings[0].isKingChecked:
-                        print("CHECKMATE")
-                        print("Black wins!")
-                    else:
-                        print("STALEMATE")
-                        print("Game is a tie")
+            self.kings[1].getPossibleMoves()
+            self.kings[1].getLegalMoves()
+            self.kings[1].getChecks()
+            self.currentPlayer = "Black"
+        else:
+            for row in self.squares:
+                for square in row:
+                    if square.piece != None and square.piece.player =="Black":
+                        square.piece.getPossibleMoves()
+                        square.piece.getSquaresAttacked()
+            self.kings[0].getPossibleMoves()
+            self.kings[0].getLegalMoves()
+            self.kings[0].getChecks()
+            self.currentPlayer = "White"
+
+
+        isCheckmate = True
+        isStalemate = True
+        for row in self.squares:
+            for square in row:
+                if square.piece != None and square.piece.player == self.currentPlayer and square.piece.pieceName != "King":
+                    square.piece.getPossibleMoves()
+                    square.piece.getLegalMoves()
+                    if len(square.piece.legalMoves) > 0:
+                        isCheckmate = False
+                        isStalemate = False
+        
+        if (isCheckmate or isStalemate) and self.currentPlayer == "White" and len(self.kings[0].legalMoves) > 0:
+            isCheckmate = False
+            isStalemate = False
+
+        if (isCheckmate or isStalemate):
+            if self.currentPlayer == "White":
+                if self.kings[0].isKingChecked:
+                    print("CHECKMATE")
+                    print("Black wins!")
                 else:
-                    if self.kings[1].isKingChecked:
-                        print("CHECKMATE")
-                        print("White wins!")
-                    else:
-                        print("STALEMATE")
-                        print("Game is a tie")
+                    print("STALEMATE")
+                    print("Game is a tie")
+            else:
+                if self.kings[1].isKingChecked:
+                    print("CHECKMATE")
+                    print("White wins!")
+                else:
+                    print("STALEMATE")
+                    print("Game is a tie")
 
 
     def selectNewSquare(self):

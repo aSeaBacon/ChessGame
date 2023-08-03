@@ -402,11 +402,6 @@ class Knight(Piece):
             if row - 1 >= 0:
                 self.possibleMoves.append((row - 1, col - 2))
 
-        #Remove any squares containing friendly piece
-        for move in self.possibleMoves[:]:
-            if self.chessBoard.squares[move[0]][move[1]].piece != None and self.chessBoard.squares[move[0]][move[1]].piece.player == self.player:
-                self.possibleMoves.remove(move)
-
     def getSquaresAttacked(self):
         self.attackedSquares = self.possibleMoves[:]
 
