@@ -14,6 +14,8 @@ class ChessBoard(QWidget):
     currentPlayer = "White"
     hasGhostPawn = False
     ghostPawnLoc = None
+    checkMate = False
+    staleMate = False
 
     #kings[0] -> White king
     #kings[1] -> black king
@@ -93,9 +95,9 @@ class ChessBoard(QWidget):
                     square.piece.getLegalMoves()
 
     def squareClicked(self):
-        if self.clickedSquare.piece != None:
+        if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate):
             print(self.clickedSquare.piece.pieceName,":",self.clickedSquare.coords)
-        else:
+        elif not (self.checkMate or self.staleMate):
             print(None,":", self.clickedSquare.coords)
         #Either white occupied, black occupied or empty square is clicked
 
@@ -328,16 +330,20 @@ class ChessBoard(QWidget):
         if (isCheckmate or isStalemate):
             if self.currentPlayer == "White":
                 if self.kings[0].isKingChecked:
+                    self.checkMate = True
                     print("CHECKMATE")
                     print("Black wins!")
                 else:
+                    self.staleMate = True
                     print("STALEMATE")
                     print("Game is a tie")
             else:
                 if self.kings[1].isKingChecked:
+                    self.checkMate = True
                     print("CHECKMATE")
                     print("White wins!")
                 else:
+                    self.staleMate = True
                     print("STALEMATE")
                     print("Game is a tie")
 
