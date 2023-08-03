@@ -442,8 +442,7 @@ class King(Piece):
 
         #To do: Check if able to castle (possibly do in getLegalMoves to avoid conflict with getSquaresAttacked)
         #Possible issue, distinguish between legal/possible moves for pieces attacking a square
-
-        
+     
     def getLegalMoves(self):
         self.legalMoves = []
 

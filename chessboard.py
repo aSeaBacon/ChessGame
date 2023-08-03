@@ -273,8 +273,9 @@ class ChessBoard(QWidget):
                 self.highlightedSquare.piece.hasMoved = True
 
 
-            if self.hasGhostPawn and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.player != self.currentPlayer:
-                self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece = None
+            if self.hasGhostPawn and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece != None and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.player != self.currentPlayer:
+                if self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.pieceName == "ghostPawn":
+                    self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece = None
                 self.hasGhostPawn = False
                 self.ghostPawnLoc = None
 
@@ -365,12 +366,6 @@ class ChessBoard(QWidget):
 
         #Set clicked square as highlighted square
         self.highlightedSquare = self.clickedSquare
-
-    def isCheckmated(self):
-        pass
-
-    def isStalemated(self):
-        pass
 
     def createLine(self, loc1, loc2, incLoc1=False, incLoc2=False):
 
