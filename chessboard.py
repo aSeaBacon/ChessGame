@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel
 from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen
 from PyQt6.QtCore import QSize, Qt, pyqtSignal, QPoint, QPointF
 from itertools import cycle
-from pieces import Pawn, Rook, Bishop, Knight, King, Queen
+from pieces import Pawn, Rook, Bishop, Knight, King, Queen, ghostPawn
 from square import Square        
 
 
@@ -12,9 +12,12 @@ class ChessBoard(QWidget):
     highlightedSquare = None
     clickedSquare = None
     currentPlayer = "White"
+    hasGhostPawn = False
+    ghostPawnLoc = None
+
     #kings[0] -> White king
     #kings[1] -> black king
-    kings = []
+    kings = [None, None]
 
     def __init__(self):
         super().__init__()
@@ -48,8 +51,8 @@ class ChessBoard(QWidget):
                             case 3:
                                 self.layout.addWidget(Square(self, (i,j), color, Queen(player, self, (i,j))), i, j)
                             case 4:
-                                self.kings.append(King(player, self, (i,j)))
-                                self.layout.addWidget(Square(self, (i,j), color, self.kings[0]), i, j)
+                                self.kings[1] = King(player, self, (i,j))
+                                self.layout.addWidget(Square(self, (i,j), color, self.kings[1]), i, j)
 
                 elif i == 6 or i == 7:
                     player = "White"
@@ -66,8 +69,8 @@ class ChessBoard(QWidget):
                             case 3:
                                 self.layout.addWidget(Square(self, (i,j), color, Queen(player, self, (i,j))), i, j)
                             case 4:
-                                self.kings.append(King(player, self, (i,j)))
-                                self.layout.addWidget(Square(self, (i,j), color, self.kings[1] ), i, j)
+                                self.kings[0] = King(player, self, (i,j))
+                                self.layout.addWidget(Square(self, (i,j), color, self.kings[0]), i, j)
                 else:
                     self.layout.addWidget(Square(self, (i,j), color), i, j)
 
@@ -81,8 +84,19 @@ class ChessBoard(QWidget):
                 tmpList.append(self.layout.itemAtPosition(i,j).widget())
             self.squares.append(tmpList)
 
+
+        #Calculate whites starting moves
+        for row in self.squares:
+            for square in row:
+                if square.piece != None and square.piece.player == "White":
+                    square.piece.getPossibleMoves()
+                    square.piece.getLegalMoves()
+
     def squareClicked(self):
-        print(self.clickedSquare.piece,":",self.clickedSquare.coords)
+        if self.clickedSquare.piece != None:
+            print(self.clickedSquare.piece.pieceName,":",self.clickedSquare.coords)
+        else:
+            print(None,":", self.clickedSquare.coords)
         #Either white occupied, black occupied or empty square is clicked
 
         #Player clicks empty square
@@ -99,10 +113,6 @@ class ChessBoard(QWidget):
 
         #Player clicks one of their peices
         elif self.clickedSquare.piece.player == self.currentPlayer:
-            #Recalculate legal moves
-            self.clickedSquare.piece.getPossibleMoves()
-            self.clickedSquare.piece.getLegalMoves()
-            print(self.clickedSquare.piece.pieceName, ":",self.clickedSquare.piece.legalMoves)
             #Clicked square is currently highlighted
             if self.clickedSquare == self.highlightedSquare:
                 self.clickedSquare.isHighlighted = False
@@ -143,29 +153,187 @@ class ChessBoard(QWidget):
 
     def movePiece(self):
 
-        if self.highlightedSquare.piece.pieceName in ["Pawn", "King", "Rook"]:
-            self.highlightedSquare.piece.hasMoved = True
-        self.clickedSquare.piece = self.highlightedSquare.piece
-        self.clickedSquare.piece.coords = self.clickedSquare.coords
-        self.clickedSquare.updateSquare()
-        self.setHints(self.highlightedSquare, False)
-        self.highlightedSquare.piece = None
-        self.highlightedSquare.isHighlighted = False
-        self.highlightedSquare.updateSquare()
-        self.highlightedSquare = None
+        if self.highlightedSquare.piece.pieceName == "King" and self.highlightedSquare.piece.canCastle and self.clickedSquare.coords in [(7,6), (7,2), (0,6), (0,2)]:
+            match self.clickedSquare.coords:
+                case (0,2):
+                    self.highlightedSquare.piece.hasMoved = True
+                    self.squares[0][0].piece.hasMoved = True
 
-        self.findChecks()
-        self.findPins()
+                    #Move king
+                    self.clickedSquare.piece = self.highlightedSquare.piece
+                    self.clickedSquare.piece.coords = self.clickedSquare.coords
+                    self.clickedSquare.updateSquare()
+                    self.setHints(self.highlightedSquare, False)
+                    self.highlightedSquare.piece = None
+                    self.highlightedSquare.isHighlighted = False
+                    self.highlightedSquare.updateSquare()
+                    self.highlightedSquare = None
 
-        if self.isCheckmated():
-            pass
-        elif self.isStalemated():
-            pass
+                    #Move Rook
+                    self.squares[0][3].piece = self.squares[0][0].piece
+                    self.squares[0][3].piece.coords = self.squares[0][3].coords
+                    self.squares[0][3].updateSquare()
+                    self.squares[0][0].piece = None
+                    self.squares[0][0].updateSquare()
+
+                case (0,6):
+                    self.highlightedSquare.piece.hasMoved = True
+                    self.squares[0][7].piece.hasMoved = True
+
+                    #Move king
+                    self.clickedSquare.piece = self.highlightedSquare.piece
+                    self.clickedSquare.piece.coords = self.clickedSquare.coords
+                    self.clickedSquare.updateSquare()
+                    self.setHints(self.highlightedSquare, False)
+                    self.highlightedSquare.piece = None
+                    self.highlightedSquare.isHighlighted = False
+                    self.highlightedSquare.updateSquare()
+                    self.highlightedSquare = None
+
+                    #Move Rook
+                    self.squares[0][5].piece = self.squares[0][7].piece
+                    self.squares[0][5].piece.coords = self.squares[0][5].coords
+                    self.squares[0][5].updateSquare()
+                    self.squares[0][7].piece = None
+                    self.squares[0][7].updateSquare()
+                case (7,2):
+                    self.highlightedSquare.piece.hasMoved = True
+                    self.squares[7][0].piece.hasMoved = True
+
+                    #Move king
+                    self.clickedSquare.piece = self.highlightedSquare.piece
+                    self.clickedSquare.piece.coords = self.clickedSquare.coords
+                    self.clickedSquare.updateSquare()
+                    self.setHints(self.highlightedSquare, False)
+                    self.highlightedSquare.piece = None
+                    self.highlightedSquare.isHighlighted = False
+                    self.highlightedSquare.updateSquare()
+                    self.highlightedSquare = None
+
+                    #Move Rook
+                    self.squares[7][3].piece = self.squares[7][0].piece
+                    self.squares[7][3].piece.coords = self.squares[7][3].coords
+                    self.squares[7][3].updateSquare()
+                    self.squares[7][0].piece = None
+                    self.squares[7][0].updateSquare()
+
+                case (7,6):
+                    self.highlightedSquare.piece.hasMoved = True
+                    self.squares[7][7].piece.hasMoved = True
+
+                    #Move king
+                    self.clickedSquare.piece = self.highlightedSquare.piece
+                    self.clickedSquare.piece.coords = self.clickedSquare.coords
+                    self.clickedSquare.updateSquare()
+                    self.setHints(self.highlightedSquare, False)
+                    self.highlightedSquare.piece = None
+                    self.highlightedSquare.isHighlighted = False
+                    self.highlightedSquare.updateSquare()
+                    self.highlightedSquare = None
+
+                    #Move Rook
+                    self.squares[7][5].piece = self.squares[7][7].piece
+                    self.squares[7][5].piece.coords = self.squares[7][5].coords
+                    self.squares[7][5].updateSquare()
+                    self.squares[7][7].piece = None
+                    self.squares[7][7].updateSquare()
+
+
         else:
+
+            if self.highlightedSquare.piece.pieceName in ["Pawn", "King", "Rook"]:
+                #check for enabling en pessant
+                if self.highlightedSquare.piece.pieceName == "Pawn" and self.highlightedSquare.piece.hasMoved == False and self.clickedSquare.piece == None:
+                    if abs(self.highlightedSquare.coords[0] - self.clickedSquare.coords[0]) == 2:
+                        self.hasGhostPawn = True
+                        if self.currentPlayer == "White":
+                            self.squares[5][self.highlightedSquare.coords[1]].piece = ghostPawn(self.currentPlayer, self,(5,self.highlightedSquare.coords[1]), self.highlightedSquare.piece)
+                            self.ghostPawnLoc = (5, self.highlightedSquare.coords[1])
+                        else:
+                            self.squares[2][self.highlightedSquare.coords[1]].piece = ghostPawn(self.currentPlayer, self,(2,self.highlightedSquare.coords[1]), self.highlightedSquare.piece)
+                            self.ghostPawnLoc = (2, self.highlightedSquare.coords[1])
+                #check if executing en pessant
+                elif self.highlightedSquare.piece.pieceName == "Pawn" and self.hasGhostPawn and self.clickedSquare.piece != None and self.clickedSquare.piece.pieceName == "ghostPawn":
+                    tempPawn = self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.pawn
+                    tempCoords = tempPawn.coords
+                    self.squares[tempCoords[0]][tempCoords[1]].piece = None
+                    self.squares[tempCoords[0]][tempCoords[1]].updateSquare()
+                    self.hasGhostPawn = False
+                    self.ghostPawnLoc = None
+
+                self.highlightedSquare.piece.hasMoved = True
+
+
+            if self.hasGhostPawn and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.player != self.currentPlayer:
+                self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece = None
+                self.hasGhostPawn = False
+                self.ghostPawnLoc = None
+
+
+            self.clickedSquare.piece = self.highlightedSquare.piece
+            self.clickedSquare.piece.coords = self.clickedSquare.coords
+            self.clickedSquare.updateSquare()
+            self.setHints(self.highlightedSquare, False)
+            self.highlightedSquare.piece = None
+            self.highlightedSquare.isHighlighted = False
+            self.highlightedSquare.updateSquare()
+            self.highlightedSquare = None
+
+
             if self.currentPlayer == "White":
+                for row in self.squares:
+                    for square in row:
+                        if square.piece != None and square.piece.player =="White":
+                            square.piece.getPossibleMoves()
+                            square.piece.getSquaresAttacked()
+
+                self.kings[1].getPossibleMoves()
+                self.kings[1].getLegalMoves()
+                self.kings[1].getChecks()
                 self.currentPlayer = "Black"
             else:
+                for row in self.squares:
+                    for square in row:
+                        if square.piece != None and square.piece.player =="Black":
+                            square.piece.getPossibleMoves()
+                            square.piece.getSquaresAttacked()
+                self.kings[0].getPossibleMoves()
+                self.kings[0].getLegalMoves()
+                self.kings[0].getChecks()
                 self.currentPlayer = "White"
+
+
+            isCheckmate = True
+            isStalemate = True
+            for row in self.squares:
+                for square in row:
+                    if square.piece != None and square.piece.player == self.currentPlayer and square.piece.pieceName != "King":
+                        square.piece.getPossibleMoves()
+                        square.piece.getLegalMoves()
+                        if len(square.piece.legalMoves) > 0:
+                            isCheckmate = False
+                            isStalemate = False
+            
+            if (isCheckmate or isStalemate) and self.currentPlayer == "White" and len(self.kings[0].legalMoves) > 0:
+                isCheckmate = False
+                isStalemate = False
+
+            if (isCheckmate or isStalemate):
+                if self.currentPlayer == "White":
+                    if self.kings[0].isKingChecked:
+                        print("CHECKMATE")
+                        print("Black wins!")
+                    else:
+                        print("STALEMATE")
+                        print("Game is a tie")
+                else:
+                    if self.kings[1].isKingChecked:
+                        print("CHECKMATE")
+                        print("White wins!")
+                    else:
+                        print("STALEMATE")
+                        print("Game is a tie")
+
 
     def selectNewSquare(self):
 
@@ -190,12 +358,6 @@ class ChessBoard(QWidget):
         pass
 
     def isStalemated(self):
-        pass
-
-    def findPins(self):
-        pass
-
-    def findChecks(self):
         pass
 
     def createLine(self, loc1, loc2, incLoc1=False, incLoc2=False):
