@@ -97,7 +97,7 @@ class ChessBoard(QWidget):
     def squareClicked(self):
         if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate):
             print(self.clickedSquare.piece.pieceName,":",self.clickedSquare.coords)
-        elif not (self.checkMate or self.staleMate):
+        elif not self.checkMate or self.staleMate:
             print(None,":", self.clickedSquare.coords)
         #Either white occupied, black occupied or empty square is clicked
 

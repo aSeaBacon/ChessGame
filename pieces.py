@@ -454,7 +454,7 @@ class King(Piece):
                 if square.piece != None and square.piece.player != self.player:
                     square.piece.getSquaresAttacked()
                     for move in self.possibleMoves:
-                        if move in square.piece.attackedSquares:
+                        if move in square.piece.attackedSquares and move in tempMoves:
                             tempMoves.remove(move)
 
         self.legalMoves = tempMoves[:]
