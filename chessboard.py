@@ -126,10 +126,12 @@ class ChessBoard(QWidget):
 
             #Another Square is currently highlighted
             elif self.highlightedSquare != None:
+                print(self.clickedSquare.piece.legalMoves)
                 self.selectNewSquare()
 
             #No currently highlighted Square
             else:
+                print(self.clickedSquare.piece.legalMoves)
                 self.highlightedSquare = self.clickedSquare
                 self.clickedSquare.isHighlighted = True
                 self.clickedSquare.updateSquare()

@@ -446,20 +446,20 @@ class King(Piece):
         self.legalMoves = []
 
         self.canCastle()
+
+        tempMoves = self.possibleMoves[:]
         
         if self.canCastleKS:
             if self.player == "White":
-                self.legalMoves.append((7,6))
+                tempMoves.append((7,6))
             else:
-                self.legalMoves.append((0,6))
+                tempMoves.append((0,6))
         
         if self.canCastleQS:
             if self.player == "White":
-                self.legalMoves.append((7,2))
+               tempMoves.append((7,2))
             else:
-                self.legalMoves.append((0,2))
-
-        tempMoves = self.possibleMoves[:]
+                tempMoves.append((0,2))
 
         for row in self.chessBoard.squares:
             for square in row:
