@@ -156,9 +156,14 @@ class ChessBoard(QWidget):
 
     def movePiece(self):
 
-        capture = True if self.clickedSquare.piece != None else False
-
-        self.moves.addMove(self.highlightedSquare.coords, self.clickedSquare.coords, capture, self.highlightedSquare.piece.pieceName, self)
+        
+        #Used for determining notation
+        startCoords = self.highlightedSquare.coords
+        endCoords = self.clickedSquare.coords
+        capture = True if self.clickedSquare.piece != None and self.clickedSquare.piece.player != self.currentPlayer else False
+        piece = self.highlightedSquare.piece.pieceName
+        castled = False
+        # self.moves.addMove(self.highlightedSquare.coords, self.clickedSquare.coords, capture, check, self.highlightedSquare.piece.pieceName, self)
 
         if self.highlightedSquare.piece.pieceName == "King" and self.highlightedSquare.piece.canCastle and self.clickedSquare.coords in [(7,6), (7,2), (0,6), (0,2)]:
             match self.clickedSquare.coords:

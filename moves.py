@@ -7,6 +7,17 @@ from square import Square
 
 class movesContainer(QWidget):
 
+    notationDict = {
+        0 : "a",
+        1 : "b",
+        2 : "c",
+        3 : "d",
+        4 : "e",
+        5 : "f",
+        6 : "g",
+        7 : "h"
+    }
+
     def __init__(self):
         super().__init__()
 
@@ -24,7 +35,9 @@ class movesContainer(QWidget):
 
 
 
-    def addMove(self, startCoords, endCoords, capture, pieceName, board):
+    def addMove(self, startCoords, endCoords, capture, check, castle, pieceName, board):
+
+        moveNotation = ""
         
         #Move num = moves % 2 + 1 (ie 5 moves -> move 3 (3 white, 2 black))
         #if moves % 2 == 1, create new moves line, else add to current moves line
@@ -34,10 +47,33 @@ class movesContainer(QWidget):
         #All pieces except king need to check for any other piece of the same name that could have also made that move
 
         if pieceName == "Knight":
-            pass
+            count = 0
+            for row in board.squares:
+                for square in row:
+                    if square.piece != None and square.piece.pieceName == pieceName:
+                        if endCoords in square.piece.legalMoves:
+                            count+=1
+            if count == 1:
+                uniqueMove = True
+            else:
+                uniqueMove = False
+
+            if uniqueMove:
+                if capture:
+                    moveNotation = "Nx" + str(self.notationDict[endCoords[1]]) + str(endCoords[1])
+                else:
+                    moveNotation = "N" + str(self.notationDict[endCoords[1]]) + str(endCoords[1])
+
+            if check:
+                moveNotation = moveNotation + "+"
+        
+
         elif pieceName == "Pawn":
             pass
         else:
             pass
+
+
+        print(moveNotation)
 
 
