@@ -50,9 +50,6 @@ class Piece():
                                         break
                                 
                             elif square.piece.player == "Black" and self.chessBoard.kings[0].coords in direction:
-                                # print("SQUARE.PIECE.COORDS", square.piece.coords)
-                                # print("KING COORDS", self.chessBoard.kings[0].coords)
-                                # print("piece all poss", square.piece.possibleMoves)
                                 lineOfAttack = self.chessBoard.createLine(square.piece.coords, self.chessBoard.kings[0].coords)
                                 if self.coords in lineOfAttack:
                                     blockingPiecesCount = 0
@@ -232,7 +229,7 @@ class Rook(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
                     temp.append(move)
@@ -255,7 +252,7 @@ class Rook(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece != None:
                     temp.append(move)
@@ -324,7 +321,7 @@ class Bishop(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
                     temp.append(move)
@@ -345,7 +342,7 @@ class Bishop(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece != None:
                     temp.append(move)
@@ -444,19 +441,9 @@ class King(Piece):
         #Possible issue, distinguish between legal/possible moves for pieces attacking a square
      
     def getLegalMoves(self):
+
+        #No idea if this breaks after removing moves AFTER running canCastle
         self.legalMoves = []
-
-        tempMoves = self.possibleMoves[:]
-
-        for row in self.chessBoard.squares:
-            for square in row:
-                if square.piece != None and square.piece.player != self.player:
-                    square.piece.getSquaresAttacked()
-                    for move in self.possibleMoves:
-                        if move in square.piece.attackedSquares and move in tempMoves:
-                            tempMoves.remove(move)
-
-        self.legalMoves = tempMoves[:]
 
         self.canCastle()
         
@@ -471,6 +458,18 @@ class King(Piece):
                 self.legalMoves.append((7,2))
             else:
                 self.legalMoves.append((0,2))
+
+        tempMoves = self.possibleMoves[:]
+
+        for row in self.chessBoard.squares:
+            for square in row:
+                if square.piece != None and square.piece.player != self.player:
+                    square.piece.getSquaresAttacked()
+                    for move in self.possibleMoves:
+                        if move in square.piece.attackedSquares and move in tempMoves:
+                            tempMoves.remove(move)
+
+        self.legalMoves = tempMoves[:]
 
     def getSquaresAttacked(self):
         self.attackedSquares = self.possibleMoves[:]
@@ -636,7 +635,7 @@ class Queen(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece.player != self.player:
                     temp.append(move)
@@ -659,7 +658,7 @@ class Queen(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None:
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece != None:
                     temp.append(move)

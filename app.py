@@ -1,32 +1,43 @@
+from PyQt6.QtWidgets import (QWidget, QSlider, QLineEdit, QLabel, QPushButton, QScrollArea,QApplication,
+                             QHBoxLayout, QVBoxLayout, QMainWindow)
+from PyQt6.QtCore import Qt, QSize
+from PyQt6 import QtWidgets, uic
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
+
 
 class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.initUI()
 
+    def initUI(self):
+        self.scroll = QScrollArea()             # Scroll Area which contains the widgets, set as the centralWidget
+        self.widget = QWidget()                 # Widget that contains the collection of Vertical Box
+        self.vbox = QVBoxLayout()               # The Vertical Box that contains the Horizontal Boxes of  labels and buttons
 
-        self.button_is_checked = True
+        for i in range(1,50):
+            object = QLabel("TextLabel")
+            self.vbox.addWidget(object)
 
-        self.setWindowTitle("My App")
+        self.widget.setLayout(self.vbox)
 
-        button = QPushButton("Press Me!")
-        button.setCheckable(True)
-        button.clicked.connect(self.the_button_was_clicked)
-        button.clicked.connect(self.the_button_was_toggled)
+        #Scroll Area Properties
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.widget)
 
-        self.setCentralWidget(button)
+        self.setCentralWidget(self.scroll)
 
-    def the_button_was_clicked(self):
-        print("Clicked!")
+        self.setGeometry(600, 100, 1000, 900)
+        self.setWindowTitle('Scroll Area Demonstration')
+        self.show()
 
-    def the_button_was_toggled(self, checked):
-        print("Checked?", checked)
-
-app = QApplication(sys.argv)
-
-window = MainWindow()
-window.show()
+        return
+    
+app = QApplication([])
+main = MainWindow()
+main.show()
 
 app.exec()

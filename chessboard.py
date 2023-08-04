@@ -1,7 +1,5 @@
-from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel
-from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen
-from PyQt6.QtCore import QSize, Qt, pyqtSignal, QPoint, QPointF
+from PyQt6.QtWidgets import QWidget, QGridLayout
+from PyQt6.QtCore import QSize
 from itertools import cycle
 from pieces import Pawn, Rook, Bishop, Knight, King, Queen, ghostPawn
 from square import Square        
@@ -21,8 +19,10 @@ class ChessBoard(QWidget):
     #kings[1] -> black king
     kings = [None, None]
 
-    def __init__(self):
+    def __init__(self, moves):
         super().__init__()
+
+        self.moves = moves
 
         self.layout = QGridLayout()
         self.layout.setSpacing(0)
@@ -79,6 +79,7 @@ class ChessBoard(QWidget):
         self.setLayout(self.layout)
         self.setFixedSize(QSize(600,600))
 
+
         #Add all Squares objects to 8x8 array (squares) to make future access easier
         for i in range(8):
             tmpList = []
@@ -95,12 +96,13 @@ class ChessBoard(QWidget):
                     square.piece.getLegalMoves()
 
     def squareClicked(self):
-        if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate):
+        if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate) and self.clickedSquare.piece.pieceName == "Bishop":
             print(self.clickedSquare.piece.pieceName,":",self.clickedSquare.coords)
-        elif not self.checkMate or self.staleMate:
+        elif not (self.checkMate or self.staleMate):
             print(None,":", self.clickedSquare.coords)
-        #Either white occupied, black occupied or empty square is clicked
 
+
+        #Either white occupied, black occupied or empty square is clicked
         #Player clicks empty square
         if self.clickedSquare.piece == None:
             #Currently selected square exists AND new square is a legal move for the selected piece
@@ -153,6 +155,10 @@ class ChessBoard(QWidget):
             self.squares[i][j].updateSquare()
 
     def movePiece(self):
+
+        capture = True if self.clickedSquare.piece != None else False
+
+        self.moves.addMove(self.highlightedSquare.coords, self.clickedSquare.coords, capture, self.highlightedSquare.piece.pieceName, self)
 
         if self.highlightedSquare.piece.pieceName == "King" and self.highlightedSquare.piece.canCastle and self.clickedSquare.coords in [(7,6), (7,2), (0,6), (0,2)]:
             match self.clickedSquare.coords:
@@ -239,7 +245,7 @@ class ChessBoard(QWidget):
                     self.squares[7][7].piece = None
                     self.squares[7][7].updateSquare()
 
-            if self.hasGhostPawn and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.player != self.currentPlayer:
+            if self.hasGhostPawn and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece != None and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.player != self.currentPlayer:
                 self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece = None
                 self.hasGhostPawn = False
                 self.ghostPawnLoc = None
@@ -251,7 +257,7 @@ class ChessBoard(QWidget):
                 #check for enabling en pessant
                 if self.highlightedSquare.piece.pieceName == "Pawn" and self.highlightedSquare.piece.hasMoved == False and self.clickedSquare.piece == None:
                     if self.hasGhostPawn:
-                        if self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.pieceName == "ghostPawn":
+                        if self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece != None and self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece.pieceName == "ghostPawn":
                             self.squares[self.ghostPawnLoc[0]][self.ghostPawnLoc[1]].piece = None
                     if abs(self.highlightedSquare.coords[0] - self.clickedSquare.coords[0]) == 2:
                         self.hasGhostPawn = True

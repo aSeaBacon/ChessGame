@@ -54,7 +54,7 @@ class Square(QLabel):
         canvas.fill(QColor(0,0,0,0))
         center = QPoint(self.height()//2, self.width()//2)
 
-        if self.piece == None:
+        if self.piece == None or self.piece.pieceName == "ghostPawn":
             r = self.width()//6
             painter = QPainter(canvas)
             center = QPoint(self.height()//2, self.width()//2)
