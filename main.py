@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
         self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
+        
 
     def scrollToBottom(self, minVal = None, maxVal = None):
         # self.scrollArea.verticalScrollBar().maximum()

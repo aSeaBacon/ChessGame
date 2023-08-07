@@ -20,7 +20,7 @@ class movesContainer(QWidget):
         7 : "h"
     }
 
-    clickedMove = None
+    clickedMoves = None
     currentMove = None
 
     def __init__(self, main):
@@ -126,11 +126,15 @@ class movesContainer(QWidget):
 
     def clickedMove(self):
 
-        if self.clickedMove == self.currentMove:
+        if self.clickedMoves == self.currentMove:
             # self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
-            self.main.centralWidget().layout().addWidget(self.main.currentBoard)
+            self.main.centralWidget().layout().addWidget(self.main.currentBoard, 0, 0)
         else:
-            self.main.centralWidget().layout().addWidget(self.clickedMove.display)
+            self.main.centralWidget().layout().addWidget(self.clickedMove.display, 0, 0)
+
+
+    #NEED TO REDEFINE MOVE ITEM TO DISPLAY CHESSBOARD AND NOT CREATED BOARD
+    #CURRENT CONDITION CHECK (click = current) WORKS FINE
 
 class movesItem(QLabel):
 
@@ -169,16 +173,22 @@ class DisplayBoard(QWidget):
         for i in range(8):
             squareColor = next(values)
             for j in range(8):
+                squareColor = next(values)
                 piece = boardArray.pop(0)
                 pieceColor = boardArray.pop(0)
 
-                self.layout.addWidget(DisplaySquare(squareColor, piece, pieceColor))
+                self.layout.addWidget(DisplaySquare(squareColor, piece, pieceColor), i, j)
+
+        self.setLayout(self.layout)
+        self.setFixedSize(QSize(600,600))
 
 class DisplaySquare(QLabel):
 
     def __init__(self, squareColor, piece, pieceColor):
         super().__init__()
         
+
+        self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(QPalette.ColorRole.Window, QColor(squareColor))
         self.setPalette(palette)
@@ -218,6 +228,7 @@ class DisplaySquare(QLabel):
                 self.image = QPixmap()
 
         self.setPixmap(self.image)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
 
