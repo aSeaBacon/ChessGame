@@ -14,6 +14,7 @@ class ChessBoard(QWidget):
     ghostPawnLoc = None
     checkMate = False
     staleMate = False
+    boardStates = []
 
     #kings[0] -> White king
     #kings[1] -> black king
@@ -96,7 +97,7 @@ class ChessBoard(QWidget):
                     square.piece.getLegalMoves()
 
     def squareClicked(self):
-        if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate) and self.clickedSquare.piece.pieceName == "Bishop":
+        if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate):
             print(self.clickedSquare.piece.pieceName,":",self.clickedSquare.coords)
         elif not (self.checkMate or self.staleMate):
             print(None,":", self.clickedSquare.coords)
@@ -126,12 +127,10 @@ class ChessBoard(QWidget):
 
             #Another Square is currently highlighted
             elif self.highlightedSquare != None:
-                print(self.clickedSquare.piece.legalMoves)
                 self.selectNewSquare()
 
             #No currently highlighted Square
             else:
-                print(self.clickedSquare.piece.legalMoves)
                 self.highlightedSquare = self.clickedSquare
                 self.clickedSquare.isHighlighted = True
                 self.clickedSquare.updateSquare()
@@ -164,12 +163,13 @@ class ChessBoard(QWidget):
         endCoords = self.clickedSquare.coords
         capture = True if self.clickedSquare.piece != None and self.clickedSquare.piece.player != self.currentPlayer else False
         piece = self.highlightedSquare.piece.pieceName
-        castled = False
-        # self.moves.addMove(self.highlightedSquare.coords, self.clickedSquare.coords, capture, check, self.highlightedSquare.piece.pieceName, self)
+        shortCastle = False
+        longCastle = False
 
         if self.highlightedSquare.piece.pieceName == "King" and self.highlightedSquare.piece.canCastle and self.clickedSquare.coords in [(7,6), (7,2), (0,6), (0,2)]:
             match self.clickedSquare.coords:
                 case (0,2):
+                    longCastle = True
                     self.highlightedSquare.piece.hasMoved = True
                     self.squares[0][0].piece.hasMoved = True
 
@@ -191,6 +191,7 @@ class ChessBoard(QWidget):
                     self.squares[0][0].updateSquare()
 
                 case (0,6):
+                    shortCastle = True
                     self.highlightedSquare.piece.hasMoved = True
                     self.squares[0][7].piece.hasMoved = True
 
@@ -211,6 +212,7 @@ class ChessBoard(QWidget):
                     self.squares[0][7].piece = None
                     self.squares[0][7].updateSquare()
                 case (7,2):
+                    longCastle = True
                     self.highlightedSquare.piece.hasMoved = True
                     self.squares[7][0].piece.hasMoved = True
 
@@ -232,6 +234,7 @@ class ChessBoard(QWidget):
                     self.squares[7][0].updateSquare()
 
                 case (7,6):
+                    shortCastle = True
                     self.highlightedSquare.piece.hasMoved = True
                     self.squares[7][7].piece.hasMoved = True
 
@@ -325,6 +328,22 @@ class ChessBoard(QWidget):
             self.kings[0].getChecks()
             self.currentPlayer = "White"
 
+        #Create string to represent boardstate
+        #"PieceName player PieceName player None None pieceName player ... pieceName player"
+        tempString = ""
+        for row in self.squares:
+            for square in row:
+                if square.piece != None:
+                    tempString = tempString + square.piece.pieceName + " " + square.piece.player
+                else:
+                    tempString = tempString + "None None"
+
+                if square.coords != (7,7):
+                    tempString = tempString + " "
+        
+        self.boardStates.append(tempString)
+        if self.boardStates.count(tempString) == 3:
+            drawByRep = True
 
         isCheckmate = True
         isStalemate = True
@@ -338,6 +357,10 @@ class ChessBoard(QWidget):
                         isStalemate = False
         
         if (isCheckmate or isStalemate) and self.currentPlayer == "White" and len(self.kings[0].legalMoves) > 0:
+            isCheckmate = False
+            isStalemate = False
+
+        if (isCheckmate or isStalemate) and self.currentPlayer == "Black" and len(self.kings[1].legalMoves) > 0:
             isCheckmate = False
             isStalemate = False
 
@@ -360,6 +383,12 @@ class ChessBoard(QWidget):
                     self.staleMate = True
                     print("STALEMATE")
                     print("Game is a tie")
+
+        # def addMove(self, player, startCoords, endCoords, isUnique, capture, check, checkMate, castle, pieceName, board):
+        if self.currentPlayer == "White":
+            self.moves.addMove("Black", startCoords, endCoords, capture, self.kings[0].isKingChecked, isCheckmate, shortCastle, longCastle, piece, self, tempString)
+        else:
+            self.moves.addMove("White", startCoords, endCoords, capture, self.kings[1].isKingChecked, isCheckmate, shortCastle, longCastle, piece, self, tempString)
 
     def selectNewSquare(self):
 

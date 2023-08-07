@@ -120,7 +120,6 @@ class ghostPawn(Piece):
 
 class Pawn(Piece):
 
-    # legalMoves = [(4,5), (5,5)]
     hasMoved = False
     pieceName = "Pawn"
 
@@ -252,7 +251,7 @@ class Rook(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn" or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "King":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece != None:
                     temp.append(move)
@@ -342,7 +341,7 @@ class Bishop(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn" or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "King":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece != None:
                     temp.append(move)
@@ -658,7 +657,7 @@ class Queen(Piece):
         for directionalMoves in self.possibleMoves:
             temp = []
             for move in directionalMoves:
-                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn":
+                if self.chessBoard.squares[move[0]][move[1]].piece == None or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "ghostPawn" or self.chessBoard.squares[move[0]][move[1]].piece.pieceName == "King":
                     temp.append(move)
                 elif self.chessBoard.squares[move[0]][move[1]].piece != None:
                     temp.append(move)

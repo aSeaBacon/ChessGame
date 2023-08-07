@@ -5,27 +5,40 @@ from moves import movesContainer
         
 
 class MainWindow(QMainWindow):
+
     def __init__(self):
         super().__init__()
+        moves = movesContainer(self)
+        self.currentBoard = ChessBoard(moves)
 
-        scrollArea = QScrollArea()
-        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scrollArea.setWidgetResizable(True)
-        scrollArea.setFixedSize(QSize(150,600))
-        moves = movesContainer()
-        scrollArea.setWidget(moves)
+
+        self.scrollArea = QScrollArea()
+        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setFixedSize(QSize(150,600))
+        self.scrollArea.setWidget(moves)
+        self.scrollArea.verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
+
+        # scrollArea.scroll
 
         self.setWindowTitle("Chess Game")
         layout = QGridLayout()
         layout.setSpacing(0)
-        layout.addWidget(ChessBoard(moves), 0, 0)
-        layout.addWidget(scrollArea, 0, 1)
+        layout.addWidget(self.currentBoard, 0, 0)
+        layout.addWidget(self.scrollArea, 0, 1)
 
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
+        self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
+
+    def scrollToBottom(self, minVal = None, maxVal = None):
+        # self.scrollArea.verticalScrollBar().maximum()
+        self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().setValue(
+            self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().maximum()
+        )
 
 
 
