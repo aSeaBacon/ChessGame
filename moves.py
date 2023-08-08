@@ -20,8 +20,7 @@ class movesContainer(QWidget):
         7 : "h"
     }
 
-    clickedMoves = None
-    currentMove = None
+    clickedMoveItem = None
 
     def __init__(self, main):
         super().__init__()
@@ -100,7 +99,7 @@ class movesContainer(QWidget):
                 if capture:
                     moveNotation = pieceName[0] +  self.notationDict[startCoords[1]] + "x" + self.notationDict[endCoords[1]] + str(8 - endCoords[0])
                 else:
-                    moveNotation = pieceName[0] + self.normalGeometry[startCoords[1]] + self.notationDict[endCoords[1]] + str(8 - endCoords[0])
+                    moveNotation = pieceName[0] + self.notationDict[startCoords[1]] + self.notationDict[endCoords[1]] + str(8 - endCoords[0])
 
 
         if shortCastle:
@@ -114,27 +113,30 @@ class movesContainer(QWidget):
             moveNotation = moveNotation + "+"
 
 
-        print(moveNotation)
+        # print(moveNotation)
 
         if self.moves%2 != 0:
-            self.currentMove = movesItem(moveNotation, self, boardState)
+            self.currentMove = movesItem(moveNotation, self, boardState, self.moves)
             self.layout.addWidget(QLabel(str(self.moves//2 + 1) + ". "), self.moves//2, 0)
             self.layout.addWidget(self.currentMove, self.moves//2, 1)
+            self.main.centralWidget().layout().itemAtPosition(0,0).widget().addWidget(self.currentMove.display)
         else:
-            self.currentMove = movesItem(moveNotation, self, boardState)
+            self.currentMove = movesItem(moveNotation, self, boardState, self.moves)
             self.layout.addWidget(self.currentMove, self.moves//2 - 1, 2)
+            self.main.centralWidget().layout().itemAtPosition(0,0).widget().addWidget(self.currentMove.display)
 
     def clickedMove(self):
 
-        if self.clickedMoves == self.currentMove:
+        if self.clickedMoveItem.moveNum == self.moves:
             # self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
-            self.main.centralWidget().layout().addWidget(self.main.currentBoard, 0, 0)
+            # self.main.centralWidget().layout().addWidget(self.main.currentBoard, 0, 0)
+            self.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentIndex(0)
         else:
-            self.main.centralWidget().layout().addWidget(self.clickedMove.display, 0, 0)
+            # print(self.main.currentBoard.squares[0][0].piece)
+            # self.main.centralWidget().layout().addWidget(self.clickedMoveItem.display, 0, 0)
+            self.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentIndex(self.clickedMoveItem.moveNum)
 
 
-    #NEED TO REDEFINE MOVE ITEM TO DISPLAY CHESSBOARD AND NOT CREATED BOARD
-    #CURRENT CONDITION CHECK (click = current) WORKS FINE
 
 class movesItem(QLabel):
 
@@ -142,15 +144,16 @@ class movesItem(QLabel):
     board = None
     display = None
 
-    def __init__(self, moveText, movesContainer, boardState):
+    def __init__(self, moveText, movesContainer, boardState, moveNum):
         super().__init__()
         self.setText(moveText)
         self.movesContainer = movesContainer
         self.createBoard(boardState)
         self.clicked.connect(self.movesContainer.clickedMove)
+        self.moveNum = moveNum
 
     def mousePressEvent(self, event):
-        self.movesContainer.clickedMove = self
+        self.movesContainer.clickedMoveItem = self
         self.clicked.emit()
 
     def createBoard(self, boardState):

@@ -1,7 +1,8 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QScrollArea
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QScrollArea, QStackedWidget
 from PyQt6.QtCore import Qt, QSize
 from chessboard import ChessBoard
 from moves import movesContainer
+from chessboard import PieceSelection
         
 
 class MainWindow(QMainWindow):
@@ -23,10 +24,15 @@ class MainWindow(QMainWindow):
         # scrollArea.scroll
 
         self.setWindowTitle("Chess Game")
+
+        stackedWidget = QStackedWidget()
+        stackedWidget.addWidget(self.currentBoard)
+
         layout = QGridLayout()
         layout.setSpacing(0)
-        layout.addWidget(self.currentBoard, 0, 0)
+        layout.addWidget(stackedWidget, 0, 0)
         layout.addWidget(self.scrollArea, 0, 1)
+        # layout.addWidget(PieceSelection("White", self.currentBoard, (0,6)), 1, 0)
 
         widget = QWidget()
         widget.setLayout(layout)
