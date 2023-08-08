@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QSc
 from PyQt6.QtCore import Qt, QSize
 from chessboard import ChessBoard
 from moves import movesContainer
-from chessboard import PieceSelection
         
 
 class MainWindow(QMainWindow):
@@ -39,6 +38,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
         self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
+
+        # self.setWindowFlags(self.windowFlags() | Qt.WindowType.FramelessWindowHint)
         
 
     def scrollToBottom(self, minVal = None, maxVal = None):

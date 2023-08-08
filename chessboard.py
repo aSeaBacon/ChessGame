@@ -1,10 +1,10 @@
 from PyQt6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QApplication, QStatusBar, QToolBar, QMenu, QMenuBar, QLabel, QDialog
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
-from PyQt6.QtGui import QAction, QIcon, QPixmap
+from PyQt6.QtGui import QAction, QIcon, QPixmap, QWindow
 from itertools import cycle
 from pieces import Pawn, Rook, Bishop, Knight, King, Queen, ghostPawn
 from square import Square
-from moves import DisplayBoard      
+from moves import DisplayBoard    
 
 
 class ChessBoard(QWidget):
@@ -26,7 +26,6 @@ class ChessBoard(QWidget):
         super().__init__()
 
         self.moves = moves
-
         self.layout = QGridLayout()
         self.layout.setSpacing(0)
         self.squares = []
@@ -102,7 +101,6 @@ class ChessBoard(QWidget):
             for j in range(8):
                 tmpList.append(self.layout.itemAtPosition(i,j).widget())
             self.squares.append(tmpList)
-
 
         #Calculate whites starting moves
         for row in self.squares:
@@ -275,8 +273,8 @@ class ChessBoard(QWidget):
                 self.hasGhostPawn = False
                 self.ghostPawnLoc = None
 
-        elif self.highlightedSquare.piece.pieceName == "Pawn" and (self.clickedSquare.coords[0] == 0 or self.clickedSquare.coords[0] == 7):
-            self.addWidget(PieceSelection(self.currentPlayer, self, self.clickedSquare.coords))
+        # elif self.highlightedSquare.piece.pieceName == "Pawn" and (self.clickedSquare.coords[0] == 0 or self.clickedSquare.coords[0] == 7):
+        #     self.addWidget(PieceSelection(self.currentPlayer, self, self.clickedSquare.coords))
 
         else:
 
@@ -479,7 +477,9 @@ class ChessBoard(QWidget):
 
 #Try to make this work with QDialog
 #https://www.pythonguis.com/tutorials/pyqt6-dialogs/
-class PieceSelection(QDialog):
+
+#Make sure to use FramlessWindowHint
+class PieceSelection(QWidget):
     
     def __init__(self, color, board, coords):
         super().__init__()
@@ -501,9 +501,9 @@ class PieceSelection(QDialog):
         layout.setSpacing(0)
         self.setLayout(layout)
         self.setMaximumSize(72, 240)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
 
-        self.setParent(board)
-        self.move(point)
+
 
 class PieceIcon(QLabel):
     
