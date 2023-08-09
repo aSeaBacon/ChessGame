@@ -7,6 +7,10 @@ from square import Square
 from moves import DisplayBoard    
 
 
+#TO DO
+#Add winner/draw message
+#https://stackoverflow.com/questions/44264852/pyside-pyqt-overlay-widget
+
 class ChessBoard(QWidget):
 
     highlightedSquare = None
