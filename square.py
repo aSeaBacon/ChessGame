@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QLabel, QMenu, QMenuBar
-from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen, QAction, QIcon
+from PyQt6.QtWidgets import QLabel
+from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen
 from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 
 class Square(QLabel):
@@ -22,7 +22,6 @@ class Square(QLabel):
         self.setPalette(palette)
         self.updateSquare()
         self.clicked.connect(self.chessBoard.squareClicked)
-
 
     def mousePressEvent(self, event):
         self.chessBoard.clickedSquare = self

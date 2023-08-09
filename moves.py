@@ -1,9 +1,6 @@
-import typing
-from PyQt6.QtWidgets import (QWidget, QSlider, QLineEdit, QLabel, QPushButton, QScrollArea, QApplication,
-                             QHBoxLayout, QVBoxLayout, QMainWindow, QGridLayout)
+from PyQt6.QtWidgets import (QWidget, QLabel, QGridLayout)
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
-from PyQt6 import QtCore, QtGui, QtWidgets, uic
-from square import Square
+from PyQt6 import QtGui
 from itertools import cycle
 from PyQt6.QtGui import QPalette, QColor, QPixmap
 
@@ -42,8 +39,6 @@ class movesContainer(QWidget):
         
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.layout)
-
-
 
     def addMove(self, player, startCoords, endCoords, capture, check, checkMate, shortCastle, longCastle, promoted, pieceName, board, boardState):
 
@@ -142,13 +137,15 @@ class movesContainer(QWidget):
         if self.clickedMoveItem.moveNum == self.moves:
             # self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
             # self.main.centralWidget().layout().addWidget(self.main.currentBoard, 0, 0)
+            if self.main.currentBoard.pieceChoiceMenu != None:
+                self.main.currentBoard.pieceChoiceMenu.show()
             self.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentIndex(0)
         else:
             # print(self.main.currentBoard.squares[0][0].piece)
             # self.main.centralWidget().layout().addWidget(self.clickedMoveItem.display, 0, 0)
+            if self.main.currentBoard.pieceChoiceMenu != None:
+                self.main.currentBoard.pieceChoiceMenu.hide()
             self.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentIndex(self.clickedMoveItem.moveNum)
-
-
 
 class movesItem(QLabel):
 
@@ -171,8 +168,6 @@ class movesItem(QLabel):
     def createBoard(self, boardState):
         boardArray = boardState.split(" ")
         self.display = DisplayBoard(boardArray)
-
-
 
 class DisplayBoard(QWidget):
 

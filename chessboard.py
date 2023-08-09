@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QApplication, QStatusBar, QToolBar, QMenu, QMenuBar, QLabel, QDialog, QPushButton
+from PyQt6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QLabel, QPushButton
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
-from PyQt6.QtGui import QAction, QIcon, QPixmap, QWindow, QColor, QFont, QPalette
+from PyQt6.QtGui import QPixmap, QColor, QFont, QPalette
 from itertools import cycle
 from pieces import Pawn, Rook, Bishop, Knight, King, Queen, ghostPawn
 from square import Square
