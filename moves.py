@@ -45,10 +45,14 @@ class movesContainer(QWidget):
 
 
 
-    def addMove(self, player, startCoords, endCoords, capture, check, checkMate, shortCastle, longCastle, pieceName, board, boardState):
+    def addMove(self, player, startCoords, endCoords, capture, check, checkMate, shortCastle, longCastle, promoted, pieceName, board, boardState):
 
         moveNotation = ""
         
+        if promoted:
+            promotedPiece = pieceName
+            pieceName = "Pawn"
+
         #Move num = moves % 2 + 1 (ie 5 moves -> move 3 (3 white, 2 black))
         #if moves % 2 == 1, create new moves line, else add to current moves line
         self.moves +=1 
@@ -107,13 +111,21 @@ class movesContainer(QWidget):
         elif longCastle:
             moveNotation = "O-O-O"
 
+        if promoted:
+            if promotedPiece == "Knight":
+                moveNotation = moveNotation + "=N"
+            else:
+                moveNotation = moveNotation + "=" + promotedPiece[0]
+            
+            board.promoted = False
+
+
         if checkMate:
             moveNotation = moveNotation + "#"
         elif check:
             moveNotation = moveNotation + "+"
 
 
-        # print(moveNotation)
 
         if self.moves%2 != 0:
             self.currentMove = movesItem(moveNotation, self, boardState, self.moves)

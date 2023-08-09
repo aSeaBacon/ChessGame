@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QLabel
-from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen
+from PyQt6.QtWidgets import QLabel, QMenu, QMenuBar
+from PyQt6.QtGui import QPalette, QColor, QPixmap, QPainter, QBrush, QPen, QAction, QIcon
 from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 
 class Square(QLabel):
@@ -15,19 +15,20 @@ class Square(QLabel):
         self.piece = piece
         self.color = color
         self.chessBoard = chessBoard
-
+    
         self.setAutoFillBackground(True)
         palette = self.palette()
         palette.setColor(QPalette.ColorRole.Window, QColor(self.color))
         self.setPalette(palette)
         self.updateSquare()
-
         self.clicked.connect(self.chessBoard.squareClicked)
 
+
     def mousePressEvent(self, event):
-        #This line seems to break this function
-        # super().__init__()
         self.chessBoard.clickedSquare = self
+        # palette = self.palette()
+        # palette.setColor(QPalette.ColorRole.Window, QColor(255,255,255))
+        # self.setPalette(palette)
         self.clicked.emit()
 
     def addHighlight(self):

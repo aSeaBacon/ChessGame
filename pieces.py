@@ -504,7 +504,7 @@ class King(Piece):
             if self.player == "White":
                 #check king side castling
                 kingRook = self.chessBoard.squares[7][7].piece
-                if kingRook != None and kingRook.hasMoved == False and self.chessBoard.squares[7][6].piece == None and self.chessBoard.squares[7][5].piece == None:
+                if kingRook != None and kingRook.pieceName == "Rook" and kingRook.hasMoved == False and self.chessBoard.squares[7][6].piece == None and self.chessBoard.squares[7][5].piece == None:
                     #Check for pieces attacking squares in beween king and rook
                     for row in self.chessBoard.squares:
                         for square in row:
@@ -519,7 +519,7 @@ class King(Piece):
 
                 #check quene side castling
                 queenRook = self.chessBoard.squares[7][0].piece
-                if queenRook != None and queenRook.hasMoved == False and self.chessBoard.squares[7][1].piece == None and self.chessBoard.squares[7][2].piece == None and self.chessBoard.squares[7][3].piece == None:
+                if queenRook != None and queenRook.pieceName == "Rook" and queenRook.hasMoved == False and self.chessBoard.squares[7][1].piece == None and self.chessBoard.squares[7][2].piece == None and self.chessBoard.squares[7][3].piece == None:
                     for row in self.chessBoard.squares:
                         for square in row:
                             if square.piece != None and square.piece.player == "Black":
@@ -533,7 +533,7 @@ class King(Piece):
             elif self.player == "Black":
                 #check king side castling
                 kingRook = self.chessBoard.squares[0][7].piece
-                if kingRook != None and kingRook.hasMoved == False and self.chessBoard.squares[0][6].piece == None and self.chessBoard.squares[0][5].piece == None:
+                if kingRook != None and kingRook.pieceName == "Rook" and kingRook.hasMoved == False and self.chessBoard.squares[0][6].piece == None and self.chessBoard.squares[0][5].piece == None:
                     #Check for pieces attacking squares in beween king and rook
                     for row in self.chessBoard.squares:
                         for square in row:
@@ -546,7 +546,7 @@ class King(Piece):
                     self.canCastleKS = False
                 #check quene side castling
                 queenRook = self.chessBoard.squares[0][0].piece
-                if queenRook != None and queenRook.hasMoved == False and self.chessBoard.squares[0][1].piece == None and self.chessBoard.squares[0][2].piece == None and self.chessBoard.squares[0][3].piece == None:
+                if queenRook != None and queenRook.pieceName == "Rook" and queenRook.hasMoved == False and self.chessBoard.squares[0][1].piece == None and self.chessBoard.squares[0][2].piece == None and self.chessBoard.squares[0][3].piece == None:
                     for row in self.chessBoard.squares:
                         for square in row:
                             if square.piece != None and square.piece.player == "White":

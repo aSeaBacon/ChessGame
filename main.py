@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         moves = movesContainer(self)
-        self.currentBoard = ChessBoard(moves)
+        self.currentBoard = ChessBoard(moves, self)
 
 
         self.scrollArea = QScrollArea()
@@ -31,17 +31,14 @@ class MainWindow(QMainWindow):
         layout.setSpacing(0)
         layout.addWidget(stackedWidget, 0, 0)
         layout.addWidget(self.scrollArea, 0, 1)
-        # layout.addWidget(PieceSelection("White", self.currentBoard, (0,6)), 1, 0)
+        layout.setContentsMargins(0,0,0,0)
 
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
         self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
-
-        # self.setWindowFlags(self.windowFlags() | Qt.WindowType.FramelessWindowHint)
         
-
     def scrollToBottom(self, minVal = None, maxVal = None):
         # self.scrollArea.verticalScrollBar().maximum()
         self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().setValue(

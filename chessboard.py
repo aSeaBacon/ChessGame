@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QApplication, QStatusBar, QToolBar, QMenu, QMenuBar, QLabel, QDialog
+from PyQt6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QApplication, QStatusBar, QToolBar, QMenu, QMenuBar, QLabel, QDialog, QPushButton
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
-from PyQt6.QtGui import QAction, QIcon, QPixmap, QWindow
+from PyQt6.QtGui import QAction, QIcon, QPixmap, QWindow, QColor, QFont, QPalette
 from itertools import cycle
 from pieces import Pawn, Rook, Bishop, Knight, King, Queen, ghostPawn
 from square import Square
@@ -17,15 +17,19 @@ class ChessBoard(QWidget):
     checkMate = False
     staleMate = False
     boardStates = []
+    pieceChoiceMenu = None
+    promoted = False
+    moveLimitCounter = 0
 
     #kings[0] -> White king
     #kings[1] -> black king
     kings = [None, None]
 
-    def __init__(self, moves):
+    def __init__(self, moves, main):
         super().__init__()
 
         self.moves = moves
+        self.main = main
         self.layout = QGridLayout()
         self.layout.setSpacing(0)
         self.squares = []
@@ -110,10 +114,17 @@ class ChessBoard(QWidget):
                     square.piece.getLegalMoves()
 
     def squareClicked(self):
+
         if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate):
             print(self.clickedSquare.piece.pieceName,":",self.clickedSquare.coords)
         elif not (self.checkMate or self.staleMate):
             print(None,":", self.clickedSquare.coords)
+
+        if self.pieceChoiceMenu != None:
+            self.pieceChoiceMenu.hide()
+            self.pieceChoiceMenu = None
+            self.squareClicked()
+            return
 
 
         #Either white occupied, black occupied or empty square is clicked
@@ -150,7 +161,7 @@ class ChessBoard(QWidget):
                 self.setHints(self.clickedSquare, True)
 
         #Player clicks one of opponents pieces           
-        else:
+        else:      
             if self.highlightedSquare != None:
                 #Player has a selected piece and can capture clicked piece
                 if self.clickedSquare.coords in self.highlightedSquare.piece.legalMoves:
@@ -168,6 +179,28 @@ class ChessBoard(QWidget):
             self.squares[i][j].hasHint = flag
             self.squares[i][j].updateSquare()
 
+    def promotion(self, piece):
+
+        self.setHints(self.highlightedSquare, False)
+        self.promoted = True
+
+        match piece:
+            case "Queen":
+                self.highlightedSquare.piece = Queen(self.currentPlayer, self, self.clickedSquare.coords)
+            case "Rook":
+                self.highlightedSquare.piece = Rook(self.currentPlayer, self, self.clickedSquare.coords)
+                self.highlightedSquare.piece.hasMoved = True
+            case "Bishop":
+                self.highlightedSquare.piece = Bishop(self.currentPlayer, self, self.clickedSquare.coords)
+            case "Knight":
+                self.highlightedSquare.piece = Knight(self.currentPlayer, self, self.clickedSquare.coords)
+
+        self.pieceChoiceMenu.hide()
+        self.pieceChoiceMenu = None
+
+        self.movePiece()
+
+
     def movePiece(self):
 
         
@@ -178,6 +211,12 @@ class ChessBoard(QWidget):
         piece = self.highlightedSquare.piece.pieceName
         shortCastle = False
         longCastle = False
+
+        #Incrementing/resetting move counter for 50 move rule
+        if self.promoted or self.highlightedSquare.piece.pieceName == "Pawn" or capture:
+            self.moveLimitCounter = 0
+        else:
+            self.moveLimitCounter+=1
 
         if self.highlightedSquare.piece.pieceName == "King" and self.highlightedSquare.piece.canCastle and self.clickedSquare.coords in [(7,6), (7,2), (0,6), (0,2)]:
             match self.clickedSquare.coords:
@@ -273,9 +312,15 @@ class ChessBoard(QWidget):
                 self.hasGhostPawn = False
                 self.ghostPawnLoc = None
 
-        # elif self.highlightedSquare.piece.pieceName == "Pawn" and (self.clickedSquare.coords[0] == 0 or self.clickedSquare.coords[0] == 7):
-        #     self.addWidget(PieceSelection(self.currentPlayer, self, self.clickedSquare.coords))
+        
+        #Pawn promotion
 
+        elif self.highlightedSquare.piece.pieceName == "Pawn" and (self.clickedSquare.coords[0] == 0 or self.clickedSquare.coords[0] == 7):
+
+            self.pieceChoiceMenu = PieceSelection(self, self.clickedSquare.coords, self.clickedSquare, self.main)
+            self.pieceChoiceMenu.show()
+            return
+                
         else:
 
             if self.highlightedSquare.piece.pieceName in ["Pawn", "King", "Rook"]:
@@ -410,11 +455,22 @@ class ChessBoard(QWidget):
             self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().insertWidget(0, finalBoard)
             self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentWidget(finalBoard)
 
+        if self.moveLimitCounter == 100:
+            print("DRAW BY FIFTY-MOVE RULE")
+            print("Game is a draw")
+            boardArray = tempString.split(" ")
+            finalBoard = DisplayBoard(boardArray)
+            self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().removeWidget(self)
+            self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().insertWidget(0, finalBoard)
+            self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentWidget(finalBoard)
+
         # def addMove(self, player, startCoords, endCoords, isUnique, capture, check, checkMate, castle, pieceName, board):
         if self.currentPlayer == "White":
-            self.moves.addMove("Black", startCoords, endCoords, capture, self.kings[0].isKingChecked, isCheckmate, shortCastle, longCastle, piece, self, tempString)
+            self.moves.addMove("Black", startCoords, endCoords, capture, self.kings[0].isKingChecked, isCheckmate, shortCastle, longCastle, self.promoted, piece, self, tempString)
         else:
-            self.moves.addMove("White", startCoords, endCoords, capture, self.kings[1].isKingChecked, isCheckmate, shortCastle, longCastle, piece, self, tempString)
+            self.moves.addMove("White", startCoords, endCoords, capture, self.kings[1].isKingChecked, isCheckmate, shortCastle, longCastle, self.promoted, piece, self, tempString)
+
+
 
     def selectNewSquare(self):
 
@@ -475,41 +531,83 @@ class ChessBoard(QWidget):
 
 
 
-#Try to make this work with QDialog
+#Try to make this work with QMenu, attach menu to square?
 #https://www.pythonguis.com/tutorials/pyqt6-dialogs/
 
 #Make sure to use FramlessWindowHint
 class PieceSelection(QWidget):
+
+    close = pyqtSignal()
     
-    def __init__(self, color, board, coords):
-        super().__init__()
+    def __init__(self, board, coords, square, main):
+        super().__init__(main)
         layout = QVBoxLayout()
-        if color == "White":
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\QueenW.png")))
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\RookW.png")))
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\BishopW.png")))
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\KnightW.png")))
-            point = board.squares[coords[0]][coords[1]].geometry().topLeft()
+        self.board = board
+        if coords[0] == 0:
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\QueenW.png"), square, board, "Queen"))
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\RookW.png"), square, board, "Rook"))
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\BishopW.png"), square, board, "Bishop"))
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\KnightW.png"), square, board, "Knight"))
 
-        else:
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\QueenB.png")))
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\RookB.png")))
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\BishopB.png")))
-            layout.addWidget(PieceIcon(QPixmap("ChessPieces\KnightB.png")))
-            point = board.squares[coords[0]][coords[1]].geometry().bottomLeft()
+        elif coords[0] == 7:
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\QueenB.png"), square))
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\RookB.png"), square))
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\BishopB.png"), square))
+            layout.addWidget(PieceIcon(QPixmap("ChessPieces\KnightB.png"), square))
 
-        layout.setSpacing(0)
+        self.closeButton = QPushButton()
+        self.closeButton.setAutoFillBackground(True)
+        self.closeButton.setText("x")
+        palette = self.closeButton.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(211,211,211))
+        self.closeButton.setPalette(palette)
+        font = QFont()
+        font.setPixelSize(18)
+        font.setBold(True)
+        self.closeButton.setFont(font)
+        self.closeButton.setFixedSize(square.width(),square.height()//2)
+        self.closeButton.setContentsMargins(0,0,0,0)
+        self.closeButton.clicked.connect(self.closeMenu)
+        if coords[0] == 0:
+            layout.addWidget(self.closeButton)
+        elif coords[0] == 7:
+            layout.insertWidget(0, self.closeButton)
+        layout.setContentsMargins(0,0,0,0)
+
+        # layout.setSpacing(0)
         self.setLayout(layout)
-        self.setMaximumSize(72, 240)
+        self.setFixedSize(square.width(), square.height()*4 + square.height()//2)
+        self.setAutoFillBackground(True)
+        palette = self.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(255,255,255))
+        self.setPalette(palette)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        # self.move(square.pos())
+        if coords[0] == 0:
+            self.move(square.pos())
+        elif coords[0] == 7:
+            self.move(board.squares[coords[0]-3][coords[1]].pos().x(), board.squares[coords[0]-3][coords[1]].pos().y() - square.height()//2)
 
-
+    def closeMenu(self):
+        self.hide()
+        self.board.pieceChoiceMenu = None
 
 class PieceIcon(QLabel):
     
     clicked = pyqtSignal()
 
-    def __init__(self, image):
+    def __init__(self, image, square, board, piece):
         super().__init__()
+        self.board = board
+        self.piece = piece
+        self.setFixedSize(square.size())
         self.setPixmap(image)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.clicked.connect(self.pieceSeleceted)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+
+    def pieceSeleceted(self):
+        self.board.promotion(self.piece)
+
