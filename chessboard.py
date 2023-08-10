@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QLabel, QPushButton
+from PyQt6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap, QColor, QFont, QPalette
 from itertools import cycle
@@ -24,6 +24,7 @@ class ChessBoard(QWidget):
     pieceChoiceMenu = None
     promoted = False
     moveLimitCounter = 0
+    test=None
 
     #kings[0] -> White king
     #kings[1] -> black king
@@ -117,6 +118,7 @@ class ChessBoard(QWidget):
                     square.piece.getPossibleMoves()
                     square.piece.getLegalMoves()
 
+
     def squareClicked(self):
 
         if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate):
@@ -204,10 +206,8 @@ class ChessBoard(QWidget):
 
         self.movePiece()
 
-
     def movePiece(self):
 
-        
         #Used for determining notation
         startCoords = self.highlightedSquare.coords
         endCoords = self.clickedSquare.coords
@@ -436,23 +436,33 @@ class ChessBoard(QWidget):
                     self.checkMate = True
                     print("CHECKMATE")
                     print("Black wins!")
+                    gameOver = GameOverMessage(self.main, self, "Checkmate\n Black Wins!")
+                    gameOver.show()
                 else:
                     self.staleMate = True
                     print("STALEMATE")
                     print("Game is a tie")
+                    gameOver = GameOverMessage(self.main, self, "Stalemate\n Game is a draw.")
+                    gameOver.show()
             else:
                 if self.kings[1].isKingChecked:
                     self.checkMate = True
                     print("CHECKMATE")
                     print("White wins!")
+                    gameOver = GameOverMessage(self.main, self, "Checkmate\n White Wins!")
+                    gameOver.show()
                 else:
                     self.staleMate = True
                     print("STALEMATE")
                     print("Game is a tie")
+                    gameOver = GameOverMessage(self.main, self, "Stalemate\n Game is a draw.")
+                    gameOver.show()
 
         if drawByRep:
             print("DRAW BY REPETITION")
             print("Game is a draw")
+            gameOver = GameOverMessage(self.main, self, "Draw by Repetition\n Game is a draw.")
+            gameOver.show()
             boardArray = tempString.split(" ")
             finalBoard = DisplayBoard(boardArray)
             self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().removeWidget(self)
@@ -462,6 +472,20 @@ class ChessBoard(QWidget):
         if self.moveLimitCounter == 100:
             print("DRAW BY FIFTY-MOVE RULE")
             print("Game is a draw")
+            gameOver = GameOverMessage(self.main, self, "Draw by Fifty-Move Rule\n Game is a draw.")
+            gameOver.show()
+            boardArray = tempString.split(" ")
+            finalBoard = DisplayBoard(boardArray)
+            self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().removeWidget(self)
+            self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().insertWidget(0, finalBoard)
+            self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentWidget(finalBoard)
+
+        #Draw by insufficient material
+        if self.insufficientMaterial():
+            print("Draw by insufficent material")
+            print("Game is a draw")
+            gameOver = GameOverMessage(self.main, self, "Draw by insufficent material\n Game is a draw")
+            gameOver.show()
             boardArray = tempString.split(" ")
             finalBoard = DisplayBoard(boardArray)
             self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().removeWidget(self)
@@ -473,8 +497,6 @@ class ChessBoard(QWidget):
             self.moves.addMove("Black", startCoords, endCoords, capture, self.kings[0].isKingChecked, isCheckmate, shortCastle, longCastle, self.promoted, piece, self, tempString)
         else:
             self.moves.addMove("White", startCoords, endCoords, capture, self.kings[1].isKingChecked, isCheckmate, shortCastle, longCastle, self.promoted, piece, self, tempString)
-
-
 
     def selectNewSquare(self):
 
@@ -533,12 +555,43 @@ class ChessBoard(QWidget):
         # print(self.layout.itemAtPosition(0,0).widget().coords)
         # self.setGeometry(100,100,400,400)
 
+    def insufficientMaterial(self):
+        
+        whiteKnights = 0
+        whiteBishops = 0
+        blackKnights = 0
+        blackBishops = 0
+
+        for row in self.squares:
+            for square in row:
+                if square.piece!=None:
+                    match square.piece.pieceName:
+                        case "Pawn" | "Queen" | "Rook":
+                            return False
+                        case "Bishop":
+                            if square.piece.player == "White":
+                                whiteBishops +=1
+                            else:
+                                blackBishops +=1
+                        case "Knight":
+                            if square.piece.player == "White":
+                                whiteKnights +=1
+                            else:
+                                blackKnights +=1
+
+        if (whiteBishops <= 1 or blackBishops <=1) and (whiteKnights == 0 and blackKnights == 0):
+            return True
+        if (whiteBishops == 0 and blackBishops == 0) and (whiteKnights <= 1 and blackKnights <= 1):
+            return True
+        if whiteKnights == 2 and whiteBishops == 0 and blackBishops == 0 and blackKnights == 0:
+            return True
+        if blackKnights == 2 and whiteBishops == 0 and blackBishops == 0 and whiteKnights == 0:
+            return True
+        
+        return False
 
 
-#Try to make this work with QMenu, attach menu to square?
-#https://www.pythonguis.com/tutorials/pyqt6-dialogs/
 
-#Make sure to use FramlessWindowHint
 class PieceSelection(QWidget):
 
     close = pyqtSignal()
@@ -614,4 +667,46 @@ class PieceIcon(QLabel):
 
     def pieceSeleceted(self):
         self.board.promotion(self.piece)
+
+class GameOverMessage(QWidget):
+    def __init__(self, main, board, message):
+        super().__init__(main)
+
+        font = QFont()
+        font.setPixelSize(18)
+        font.setBold(True)
+
+        layout = QVBoxLayout()
+
+
+
+        self.messageLabel = QLabel()
+        self.messageLabel.setText(message)
+        # self.messageLabel.setFixedSize(200,70)
+        self.messageLabel.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.messageLabel.setFont(font)
+
+        self.closeButton = QPushButton("x")
+        self.closeButton.setFont(font)
+        self.closeButton.clicked.connect(self.close)
+        self.closeButton.setFixedSize(30,30)
+        self.closeButton.setStyleSheet("border: none;")
+        buttonLayout = QHBoxLayout()
+        buttonLayout.addStretch()
+        buttonLayout.addWidget(self.closeButton)
+        layout.addLayout(buttonLayout)
+        layout.addWidget(self.messageLabel)
+        layout.setContentsMargins(0,0,0,0)
+
+        self.setLayout(layout)
+
+        
+        palette = self.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(211,211,211))
+        self.setPalette(palette)
+        self.setLayout(layout)
+        self.setAutoFillBackground(True)
+        self.setFixedSize(300, 100)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
+        self.move(board.width()//2 - self.width()//2, board.height()//2 - self.height()//2)
 
