@@ -113,7 +113,6 @@ class ChessBoard(QWidget):
                     square.piece.getPossibleMoves()
                     square.piece.getLegalMoves()
 
-
     def squareClicked(self):
 
         if self.clickedSquare.piece != None and not (self.checkMate or self.staleMate):
@@ -217,7 +216,8 @@ class ChessBoard(QWidget):
         else:
             self.moveLimitCounter+=1
 
-        if self.highlightedSquare.piece.pieceName == "King" and self.highlightedSquare.piece.canCastle and self.clickedSquare.coords in [(7,6), (7,2), (0,6), (0,2)]:
+        # if self.highlightedSquare.piece.pieceName == "King" and self.highlightedSquare.piece.canCastle and self.clickedSquare.coords in [(7,6), (7,2), (0,6), (0,2)]:
+        if self.highlightedSquare.piece.pieceName == "King" and ((self.highlightedSquare.piece.canCastleKS and self.clickedSquare.coords in [(7,6), (0,6)]) or (self.highlightedSquare.piece.canCastleQS and self.clickedSquare.coords in [(7,2), (0,2)])):
             match self.clickedSquare.coords:
                 case (0,2):
                     longCastle = True
@@ -311,7 +311,6 @@ class ChessBoard(QWidget):
                 self.hasGhostPawn = False
                 self.ghostPawnLoc = None
 
-        
         #Pawn promotion
 
         elif self.highlightedSquare.piece.pieceName == "Pawn" and (self.clickedSquare.coords[0] == 0 or self.clickedSquare.coords[0] == 7):
@@ -544,9 +543,6 @@ class ChessBoard(QWidget):
 
         return points
 
-    
-
-
     def insufficientMaterial(self):
         
         whiteKnights = 0
@@ -581,8 +577,6 @@ class ChessBoard(QWidget):
             return True
         
         return False
-
-
 
 class PieceSelection(QWidget):
 
