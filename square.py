@@ -25,9 +25,6 @@ class Square(QLabel):
 
     def mousePressEvent(self, event):
         self.chessBoard.clickedSquare = self
-        # palette = self.palette()
-        # palette.setColor(QPalette.ColorRole.Window, QColor(255,255,255))
-        # self.setPalette(palette)
         self.clicked.emit()
 
     def addHighlight(self):

@@ -20,8 +20,6 @@ class MainWindow(QMainWindow):
         self.scrollArea.setWidget(moves)
         self.scrollArea.verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
 
-        # scrollArea.scroll
-
         self.setWindowTitle("Chess Game")
 
         stackedWidget = QStackedWidget()
@@ -40,7 +38,6 @@ class MainWindow(QMainWindow):
         self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
         
     def scrollToBottom(self, minVal = None, maxVal = None):
-        # self.scrollArea.verticalScrollBar().maximum()
         self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().setValue(
             self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().maximum()
         )

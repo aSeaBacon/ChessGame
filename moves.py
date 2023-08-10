@@ -28,15 +28,6 @@ class movesContainer(QWidget):
         self.layout.addWidget(QLabel("1. "), 0, 0)
         self.layout.addWidget(QLabel(""), 0, 1)
         self.layout.addWidget(QLabel(""), 0, 2)
-
-        # for i in range(1,50):
-        #     object = QLabel(str(i))
-        #     self.layout.addWidget(object, i, 0)
-        #     self.layout.addWidget(object, i, 1)
-        #     self.layout.addWidget(object, i, 2)
-
-        # self.moves = 100
-        
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.layout)
 
@@ -135,14 +126,10 @@ class movesContainer(QWidget):
     def clickedMove(self):
 
         if self.clickedMoveItem.moveNum == self.moves:
-            # self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
-            # self.main.centralWidget().layout().addWidget(self.main.currentBoard, 0, 0)
             if self.main.currentBoard.pieceChoiceMenu != None:
                 self.main.currentBoard.pieceChoiceMenu.show()
             self.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentIndex(0)
         else:
-            # print(self.main.currentBoard.squares[0][0].piece)
-            # self.main.centralWidget().layout().addWidget(self.clickedMoveItem.display, 0, 0)
             if self.main.currentBoard.pieceChoiceMenu != None:
                 self.main.currentBoard.pieceChoiceMenu.hide()
             self.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentIndex(self.clickedMoveItem.moveNum)

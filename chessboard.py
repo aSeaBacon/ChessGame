@@ -6,11 +6,6 @@ from pieces import Pawn, Rook, Bishop, Knight, King, Queen, ghostPawn
 from square import Square
 from moves import DisplayBoard    
 
-
-#TO DO
-#Add winner/draw message
-#https://stackoverflow.com/questions/44264852/pyside-pyqt-overlay-widget
-
 class ChessBoard(QWidget):
 
     highlightedSquare = None
@@ -492,7 +487,6 @@ class ChessBoard(QWidget):
             self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().insertWidget(0, finalBoard)
             self.moves.main.centralWidget().layout().itemAtPosition(0,0).widget().setCurrentWidget(finalBoard)
 
-        # def addMove(self, player, startCoords, endCoords, isUnique, capture, check, checkMate, castle, pieceName, board):
         if self.currentPlayer == "White":
             self.moves.addMove("Black", startCoords, endCoords, capture, self.kings[0].isKingChecked, isCheckmate, shortCastle, longCastle, self.promoted, piece, self, tempString)
         else:
@@ -552,8 +546,6 @@ class ChessBoard(QWidget):
 
     
 
-        # print(self.layout.itemAtPosition(0,0).widget().coords)
-        # self.setGeometry(100,100,400,400)
 
     def insufficientMaterial(self):
         
@@ -631,7 +623,6 @@ class PieceSelection(QWidget):
             layout.insertWidget(0, self.closeButton)
         layout.setContentsMargins(0,0,0,0)
 
-        # layout.setSpacing(0)
         self.setLayout(layout)
         self.setFixedSize(square.width(), square.height()*4 + square.height()//2)
         self.setAutoFillBackground(True)
@@ -639,7 +630,6 @@ class PieceSelection(QWidget):
         palette.setColor(QPalette.ColorRole.Window, QColor(255,255,255))
         self.setPalette(palette)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
-        # self.move(square.pos())
         if coords[0] == 0:
             self.move(square.pos())
         elif coords[0] == 7:
@@ -682,7 +672,6 @@ class GameOverMessage(QWidget):
 
         self.messageLabel = QLabel()
         self.messageLabel.setText(message)
-        # self.messageLabel.setFixedSize(200,70)
         self.messageLabel.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.messageLabel.setFont(font)
 
