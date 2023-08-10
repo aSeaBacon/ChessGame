@@ -672,7 +672,7 @@ class GameOverMessage(QWidget):
         self.closeButton = QPushButton("x")
         self.closeButton.setFont(font)
         self.closeButton.clicked.connect(self.close)
-        self.closeButton.setFixedSize(30,30)
+        self.closeButton.setFixedSize(25,25)
         self.closeButton.setStyleSheet("border: none;")
         buttonLayout = QHBoxLayout()
         buttonLayout.addStretch()
@@ -685,7 +685,7 @@ class GameOverMessage(QWidget):
 
         
         palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(211,211,211))
+        palette.setColor(QPalette.ColorRole.Window, QColor(200, 200, 200, 255))
         self.setPalette(palette)
         self.setLayout(layout)
         self.setAutoFillBackground(True)

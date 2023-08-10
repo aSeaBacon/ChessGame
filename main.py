@@ -34,8 +34,7 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
-
-        self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().rangeChanged.connect(self.scrollToBottom)
+        self.setFixedSize(750,600)
         
     def scrollToBottom(self, minVal = None, maxVal = None):
         self.centralWidget().layout().itemAtPosition(0,1).widget().verticalScrollBar().setValue(
