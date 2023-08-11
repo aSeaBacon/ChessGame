@@ -526,7 +526,7 @@ class King(Piece):
                                 square.piece.getPossibleMoves()
                                 square.piece.getSquaresAttacked()
                                 if (7,2) in square.piece.attackedSquares or (7,3) in square.piece.attackedSquares:
-                                    self.CanCastleQS = False
+                                    self.canCastleQS = False
                 else:
                     self.canCastleQS = False
             
@@ -541,7 +541,7 @@ class King(Piece):
                                 square.piece.getPossibleMoves()
                                 square.piece.getSquaresAttacked()
                                 if (0,6) in square.piece.attackedSquares or (0,5) in square.piece.attackedSquares:
-                                    self.CanCastleKS = False
+                                    self.canCastleKS = False
                 else:
                     self.canCastleKS = False
                 #check quene side castling
@@ -553,7 +553,7 @@ class King(Piece):
                                 square.piece.getPossibleMoves()
                                 square.piece.getSquaresAttacked()
                                 if (0,2) in square.piece.attackedSquares or (0,3) in square.piece.attackedSquares:
-                                    self.CanCastleQS = False
+                                    self.canCastleQS = False
                 else:
                     self.canCastleQS = False
 
