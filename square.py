@@ -80,6 +80,12 @@ class Square(QLabel):
         self.clear()
 
     def updateSquare(self):
+
+        #Added this for flipping board
+        palette = self.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(self.color))
+        self.setPalette(palette)
+
         if self.piece != None:
             if self.piece.player == self.chessBoard.currentPlayer:
                 if self.isHighlighted:

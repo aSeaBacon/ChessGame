@@ -4,7 +4,7 @@ from PyQt6.QtGui import QPixmap, QColor, QFont, QPalette
 from itertools import cycle
 from pieces import Pawn, Rook, Bishop, Knight, King, Queen, ghostPawn
 from square import Square
-from moves import DisplayBoard    
+from moves import DisplayBoard
 
 class ChessBoard(QWidget):
 
@@ -112,6 +112,44 @@ class ChessBoard(QWidget):
                 if square.piece != None and square.piece.player == "White":
                     square.piece.getPossibleMoves()
                     square.piece.getLegalMoves()
+
+    def invertBoard(self):
+
+
+        #Issue: setHints references squares by position in array, not by coords
+
+        for i in range(4):
+
+            for j in range(8):
+
+                square1 = self.squares[i][j]
+                self.squares[i][j] = self.squares[7-i][7-j]
+                self.squares[7-i][7-j] = square1
+
+                self.squares[i][j].updateSquare()
+                self.squares[7-i][7-j].updateSquare()
+
+                piece1 = self.squares[i][j].piece
+                color1 = self.squares[i][j].color
+                coords1 = self.squares[i][j].coords
+
+                self.squares[i][j].piece = self.squares[7-i][7-j].piece
+                self.squares[i][j].color = self.squares[7-i][7-j].color
+                self.squares[i][j].coords = self.squares[7-i][7-j].coords
+                if self.squares[i][j].piece != None:
+                    self.squares[i][j].piece.coords = self.squares[7-i][7-j].piece.coords
+                self.squares[i][j].updateSquare()
+
+                self.squares[7-i][7-j].piece = None
+                self.squares[7-i][7-j].piece = piece1
+                self.squares[7-i][7-j].color = color1
+                self.squares[7-i][7-j].coords = coords1
+                if self.squares[7-i][7-j].piece != None:
+                    self.squares[7-i][7-j].piece.coords = coords1
+                self.squares[7-i][7-j].updateSquare()
+
+            
+
 
     def squareClicked(self):
 
@@ -363,7 +401,6 @@ class ChessBoard(QWidget):
             self.highlightedSquare.updateSquare()
             self.highlightedSquare = None
 
-
         if self.currentPlayer == "White":
             for row in self.squares:
                 for square in row:
@@ -490,6 +527,10 @@ class ChessBoard(QWidget):
             self.moves.addMove("Black", startCoords, endCoords, capture, self.kings[0].isKingChecked, isCheckmate, shortCastle, longCastle, self.promoted, piece, self, tempString)
         else:
             self.moves.addMove("White", startCoords, endCoords, capture, self.kings[1].isKingChecked, isCheckmate, shortCastle, longCastle, self.promoted, piece, self, tempString)
+        
+        #Flips board if game didn't end
+        if not self.insufficientMaterial() and not isCheckmate and not isStalemate and self.moveLimitCounter != 100 and not drawByRep:
+            self.invertBoard()
 
     def selectNewSquare(self):
 

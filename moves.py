@@ -114,12 +114,12 @@ class movesContainer(QWidget):
 
 
         if self.moves%2 != 0:
-            self.currentMove = movesItem(moveNotation, self, boardState, self.moves)
+            self.currentMove = movesItem(moveNotation, self, boardState, self.moves, "White")
             self.layout.addWidget(QLabel(str(self.moves//2 + 1) + ". "), self.moves//2, 0)
             self.layout.addWidget(self.currentMove, self.moves//2, 1)
             self.main.centralWidget().layout().itemAtPosition(0,0).widget().addWidget(self.currentMove.display)
         else:
-            self.currentMove = movesItem(moveNotation, self, boardState, self.moves)
+            self.currentMove = movesItem(moveNotation, self, boardState, self.moves, "Black")
             self.layout.addWidget(self.currentMove, self.moves//2 - 1, 2)
             self.main.centralWidget().layout().itemAtPosition(0,0).widget().addWidget(self.currentMove.display)
 
@@ -140,11 +140,11 @@ class movesItem(QLabel):
     board = None
     display = None
 
-    def __init__(self, moveText, movesContainer, boardState, moveNum):
+    def __init__(self, moveText, movesContainer, boardState, moveNum, player):
         super().__init__()
         self.setText(moveText)
         self.movesContainer = movesContainer
-        self.createBoard(boardState)
+        self.createBoard(boardState, player)
         self.clicked.connect(self.movesContainer.clickedMove)
         self.moveNum = moveNum
 
@@ -152,13 +152,13 @@ class movesItem(QLabel):
         self.movesContainer.clickedMoveItem = self
         self.clicked.emit()
 
-    def createBoard(self, boardState):
+    def createBoard(self, boardState, player):
         boardArray = boardState.split(" ")
-        self.display = DisplayBoard(boardArray)
+        self.display = DisplayBoard(boardArray, player)
 
 class DisplayBoard(QWidget):
 
-    def __init__(self, boardArray):
+    def __init__(self, boardArray, player):
         super().__init__()
 
         self.layout = QGridLayout()
@@ -166,15 +166,25 @@ class DisplayBoard(QWidget):
 
         #Color codes used for squares on chessboard
         values = cycle(["#769656", "#eeeed2"])
-
-        for i in range(8):
-            squareColor = next(values)
-            for j in range(8):
+        #Player variable used to determine how to store the board (from white or blacks perspective)
+        if player == "Black":
+            for i in range(8):
                 squareColor = next(values)
-                piece = boardArray.pop(0)
-                pieceColor = boardArray.pop(0)
+                for j in range(8):
+                    squareColor = next(values)
+                    piece = boardArray.pop(0)
+                    pieceColor = boardArray.pop(0)
 
-                self.layout.addWidget(DisplaySquare(squareColor, piece, pieceColor), i, j)
+                    self.layout.addWidget(DisplaySquare(squareColor, piece, pieceColor), i, j)
+        else:
+            for i in range(7,-1,-1):
+                squareColor = next(values)
+                for j in range(7,-1,-1):
+                    squareColor = next(values)
+                    piece = boardArray.pop(0)
+                    pieceColor = boardArray.pop(0)
+
+                    self.layout.addWidget(DisplaySquare(squareColor, piece, pieceColor), i, j)     
 
         self.setLayout(self.layout)
         self.setFixedSize(QSize(600,600))
